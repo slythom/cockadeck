@@ -4,6 +4,7 @@ export default function Form() {
   return (
     <div>
       <form action={createDeck}>
+        <input type="text" name="cardqty" id="cardqty" className="outline" />
         <input type="text" name="setcode" id="setcode" className="outline" />
         <input type="text" name="collectornumber" id="collectornumber" className="outline" />
         <button type="submit">Ajouter</button>
