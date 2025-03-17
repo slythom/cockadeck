@@ -1,6 +1,7 @@
 import { createDeck, handleExport } from "@/app/actions/CRUD";
 
-export default function Form() {
+export default async function Form() {
+  
   return (
     <div>
       <form action={createDeck}>
@@ -11,6 +12,7 @@ export default function Form() {
       </form>
 
       <button onClick={handleExport}>Exporter la Liste</button>
+
     </div>
   );
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cockatrice_deck version="1">
+  <lastLoadedTimestamp/>
+  <deckname/>
+  <bannerCard providerId=""/>
+  <comments/>
+  <tags/>
+  <zone name="main">
+    <card number="1" name="Another Round"/>
+    <card number="1" name="Archangel of Tithes"/>
+  </zone>
+</cockatrice_deck>
