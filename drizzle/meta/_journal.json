@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1763246506489,
+      "tag": "0000_useful_leech",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1763247764675,
+      "tag": "0001_nosy_stark_industries",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1763329380558,
+      "tag": "0002_sloppy_iceman",
+      "breakpoints": true
+    }
+  ]
+}
