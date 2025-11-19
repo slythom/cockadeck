@@ -51,6 +51,9 @@ export const actions = {
 		const collector_number = String(data.get('collector_number') ?? '');
 		const image_uri = String(data.get('image_uri') ?? '');
 		const quantity = Number(data.get('quantity') ?? 1);
+		const colors = String(data.get('colors') ?? '');
+		const mana_cost = String(data.get('mana_cost') ?? '');
+		const setname = String(data.get('setname') ?? '');
 
 		await db.insert(cards).values({
 			id: crypto.randomUUID(),
@@ -59,7 +62,10 @@ export const actions = {
 			setcode,
 			collector_number,
 			image_uri,
-			quantity
+			quantity,
+			colors,
+			mana_cost,
+			setname
 		});
 
 		// Retourne les données de la carte pour pouvoir continuer à l'afficher
