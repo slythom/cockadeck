@@ -1,4 +1,5 @@
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
+import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { cards } from '$lib/server/db/schema';
 
@@ -13,18 +14,16 @@ export const actions = {
 		const res = await fetch(api_url);
 
 		if (!res.ok) {
-			return { success: false, status: res.status };
+			return fail(404, {
+				context: 'search',
+				error: 'Carte non trouvée sur Scryfall'
+			});
 		}
 
 		const card = await res.json();
 
-		if (!card) {
-			return { success: false, context: 'search', error: 'Scryfall 404' };
-		}
-
 		return {
-			success: true,
-			card,
+			context: 'search',
 			card_quantity: Number(quantity ?? 0),
 			card_setcode: card.set,
 			card_collector_number: card.collector_number,
@@ -40,15 +39,13 @@ export const actions = {
 		const user = locals.user;
 
 		if (!user) {
-			return {
-				success: false,
+			return fail(401, {
 				context: 'save',
-				error: 'Not authenticated.'
-			};
+				error: 'Non authentifié'
+			});
 		}
 
 		const data = await request.formData();
-
 		const name = String(data.get('name') ?? '');
 		const setcode = String(data.get('setcode') ?? '');
 		const collector_number = String(data.get('collector_number') ?? '');
@@ -57,7 +54,7 @@ export const actions = {
 
 		await db.insert(cards).values({
 			id: crypto.randomUUID(),
-			userId: user.id, // 👈 lie la carte à l'utilisateur
+			userId: user.id,
 			name,
 			setcode,
 			collector_number,
@@ -65,9 +62,18 @@ export const actions = {
 			quantity
 		});
 
+		// Retourne les données de la carte pour pouvoir continuer à l'afficher
 		return {
-			success: true,
-			context: 'save'
+			context: 'save',
+			message: 'Carte sauvegardée avec succès !',
+			card_setcode: setcode,
+			card_collector_number: collector_number,
+			card_name: name,
+			card_set_name: data.get('setname'),
+			card_image_normal: image_uri,
+			card_colors: data.get('colors'),
+			card_mana_cost: data.get('mana_cost'),
+			card_quantity: quantity
 		};
 	}
 } satisfies Actions;

@@ -72,19 +72,27 @@
 		</form>
 	</div>
 </div>
-{#if form?.success}
-	<!-- this message is ephemeral; it exists because the page was rendered in
-	       response to a form submission. it will vanish if the user reloads -->
-	<p>
-		{form.card_setcode}, {form.card_set_name}, {form.card_name}, {form.card_collector_number},
-		{form.card_quantity},
-		{form.card_image_normal},
-		{form.card_colors},
-		{form.card_mana_cost}
-	</p>
 
-	<form action="?/save" method="POST" class="space-y-6" use:enhance>
-		<!-- TODO: A COMPLETER -->
+<!-- Afficher les erreurs -->
+{#if form?.context === 'search' && form?.error}
+	<div class="mt-4 rounded bg-red-100 p-4 text-red-700">
+		{form.error}
+	</div>
+{/if}
+
+<!-- Afficher les résultats de la recherche -->
+{#if form?.context === 'search' && form?.card_name}
+	<div class="mt-4 rounded bg-gray-100 p-4">
+		<p>
+			{form.card_name} - {form.card_set_name} ({form.card_setcode}) #{form.card_collector_number}
+		</p>
+		<p>Quantité: {form.card_quantity}</p>
+		<p>Coût: {form.card_mana_cost || 'N/A'}</p>
+		<p>Couleurs: {form.card_colors?.join(', ') || 'Aucune'}</p>
+		<img src={form.card_image_normal} alt={form.card_name} />
+	</div>
+
+	<form action="?/save" method="POST" class="mt-4 space-y-6" use:enhance>
 		<input type="hidden" name="setcode" value={form.card_setcode} />
 		<input type="hidden" name="collector_number" value={form.card_collector_number} />
 		<input type="hidden" name="quantity" value={form.card_quantity} />
@@ -96,11 +104,27 @@
 
 		<button
 			type="submit"
-			class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-			>save to db</button
+			class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500"
 		>
-		{#if form?.success}
-			<p>"saved!!!"</p>
-		{/if}
+			Sauvegarder dans la DB
+		</button>
 	</form>
+{/if}
+
+<!-- Message de confirmation après sauvegarde -->
+{#if form?.context === 'save' && form?.message}
+	<div class="mt-4 rounded bg-green-100 p-4 text-green-700">
+		{form.message}
+	</div>
+
+	<!-- Afficher encore la carte sauvegardée -->
+	<div class="mt-4 rounded bg-gray-100 p-4">
+		<p>{form.card_name} a été ajoutée à ta collection !</p>
+	</div>
+{/if}
+
+{#if form?.context === 'save' && form?.error}
+	<div class="mt-4 rounded bg-red-100 p-4 text-red-700">
+		{form.error}
+	</div>
 {/if}
