@@ -38,18 +38,18 @@ export const cards = sqliteTable('cards', {
 	quantity: integer('quantity')
 });
 
-export const collectionCards = sqliteTable(
+export const collection_cards = sqliteTable(
 	'collection_cards',
 	{
-		collectionId: text('collection_id')
+		collection_id: text('collection_id')
 			.notNull()
 			.references(() => collections.id),
-		cardId: text('card_id')
+		card_id: text('card_id')
 			.notNull()
 			.references(() => cards.id),
 		quantity: integer('quantity')
 	},
 	(table) => ({
-		pk: primaryKey(table.collectionId, table.cardId)
+		pk: primaryKey(table.collection_id, table.card_id)
 	})
 );

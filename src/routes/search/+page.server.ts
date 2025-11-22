@@ -1,7 +1,7 @@
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { cards } from '$lib/server/db/schema';
+import { cards, collections } from '$lib/server/db/schema';
 
 export const actions = {
 	search: async ({ request, fetch }) => {
@@ -80,6 +80,33 @@ export const actions = {
 			card_colors: data.get('colors'),
 			card_mana_cost: data.get('mana_cost'),
 			card_quantity: quantity
+		};
+	},
+
+	createCollection: async ({ request, locals }) => {
+		const user = locals.user;
+
+		if (!user) {
+			return fail(401, {
+				context: 'save',
+				error: 'Non authentifié'
+			});
+		}
+
+		const data = await request.formData();
+		const name = String(data.get('name') ?? '');
+
+		await db.insert(collections).values({
+			id: crypto.randomUUID(),
+			userId: user.id,
+			name
+		});
+
+		// Retourne les données de la carte pour pouvoir continuer à l'afficher
+		return {
+			context: 'createCollection',
+			message: 'Collection créée avec succès !',
+			name: name
 		};
 	}
 } satisfies Actions;
