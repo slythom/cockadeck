@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageProps } from './$types';
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
 </script>
 
 <!-- boucler sur cards -->
@@ -25,4 +25,16 @@
 			<button type="submit">add to collec</button>
 		</form>
 	{/each}
+	{#each data.collections as collection (collection.id)}
+		<form action="?/export" method="POST" class="space-y-6" use:enhance>
+			<input type="hidden" name="collection_id" value={collection.id} />
+			<button type="submit">Export {collection.name} to XML</button>
+		</form>
+	{/each}
 </ul>
+
+{#if form?.context === 'export' && form?.xml}
+	<a href={`data:text/xml;charset=utf-8,${encodeURIComponent(form.xml)}`} download="collection.cod">
+		Télécharger le fichier XML
+	</a>
+{/if}
