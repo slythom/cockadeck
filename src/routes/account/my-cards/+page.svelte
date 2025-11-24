@@ -1,7 +1,11 @@
 <script lang="ts">
+	import { Button } from 'flowbite-svelte';
+	import { Select } from 'flowbite-svelte';
 	import { enhance } from '$app/forms';
 	import type { PageProps } from './$types';
 	let { data, form }: PageProps = $props();
+
+	let selected = '';
 </script>
 
 <!-- boucler sur cards -->
@@ -22,19 +26,20 @@
 					<option value={qty}>{qty}</option>
 				{/each}
 			</select>
-			<button type="submit">add to collec</button>
+
+			<Button color="alternative" type="submit">add to collec</Button>
 		</form>
 	{/each}
 	{#each data.collections as collection (collection.id)}
 		<form action="?/export" method="POST" class="space-y-6" use:enhance>
 			<input type="hidden" name="collection_id" value={collection.id} />
-			<button type="submit">Export {collection.name} to XML</button>
+			<Button color="alternative" type="submit">Export {collection.name} to XML</Button>
 		</form>
 	{/each}
 </ul>
 
 {#if form?.context === 'export' && form?.xml}
 	<a href={`data:text/xml;charset=utf-8,${encodeURIComponent(form.xml)}`} download="collection.cod">
-		Télécharger le fichier XML
+		<Button color="dark">Télécharger le fichier XML</Button>
 	</a>
 {/if}

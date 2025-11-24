@@ -1,91 +1,65 @@
 <script lang="ts">
+	import { Button, Input, Label, Helper } from 'flowbite-svelte';
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
 </script>
 
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-	<div class="sm:mx-auto sm:w-full sm:max-w-sm">
-		<img
-			src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-			alt="Your Company"
-			class="mx-auto h-10 w-auto"
-		/>
-		<h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-			Give a name to your collection/deck
-			<form action="?/createCollection" method="POST" class="space-y-6" use:enhance>
-				<input
-					id="name"
-					type="text"
-					name="name"
-					required
-					class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-				/>
-				<button type="submit">confirm</button>
-			</form>
-		</h2>
-
-		<h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-			Search your cards
-		</h2>
-	</div>
-
-	<div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-		<form action="?/search" method="POST" class="space-y-6" use:enhance>
-			<div>
-				<label for="setcode" class="block text-sm/6 font-medium text-gray-900">setcode</label>
-				<div class="mt-2">
-					<input
-						id="setcode"
-						type="text"
-						name="setcode"
-						required
-						class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-					/>
-				</div>
-			</div>
-
-			<div>
-				<div class="flex items-center justify-between">
-					<label for="collector_number" class="block text-sm/6 font-medium text-gray-900"
-						>collector_number</label
-					>
-				</div>
-				<div class="mt-2">
-					<input
-						id="collector_number"
-						type="text"
-						name="collector_number"
-						required
-						class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-					/>
-				</div>
-				<div class="flex items-center justify-between">
-					<label for="quantity" class="block text-sm/6 font-medium text-gray-900">quantity</label>
-
-					<div class="mt-2">
-						<input
-							id="quantity"
-							type="number"
-							name="quantity"
-							required
-							class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-						/>
-					</div>
-				</div>
-			</div>
-
-			<div>
-				<button
-					type="submit"
-					class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-					>Find!</button
-				>
-			</div>
+<!-- <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8"> -->
+<div class="sm:mx-auto sm:w-full sm:max-w-sm">
+	<img
+		src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+		alt="Your Company"
+		class="mx-auto h-10 w-auto"
+	/>
+	<h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+		Give a name to your collection/deck
+		<form action="?/createCollection" method="POST" class="space-y-6" use:enhance>
+			<input
+				id="name"
+				type="text"
+				name="name"
+				required
+				class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+			/>
+			<button type="submit">confirm</button>
 		</form>
-	</div>
+	</h2>
+
+	<h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+		Search your cards
+	</h2>
 </div>
+
+<div class="mx-auto mt-10">
+	<form action="?/search" method="POST" class="mx-auto" use:enhance>
+		<div class="mb-6 grid grid-cols-4 gap-4 p-10">
+			<div>
+				<div>
+					<Label for="setcode" class="mb-2">Set Code</Label>
+					<Input id="setcode" type="text" name="setcode" required />
+				</div>
+			</div>
+
+			<div>
+				<Label for="collector_number" class="mb-2">Collector Number</Label>
+				<Input id="collector_number" type="text" name="collector_number" required />
+			</div>
+			<div>
+				<div>
+					<Label for="quantity" class="mb-2">Quantity</Label>
+					<Input id="quantity" type="number" name="quantity" required />
+				</div>
+			</div>
+
+			<div>
+				<Button type="submit" class="mt-7 cursor-pointer">Find!</Button>
+			</div>
+		</div>
+	</form>
+</div>
+<!-- </div> -->
 
 <!-- Afficher les erreurs -->
 {#if form?.context === 'search' && form?.error}
@@ -102,7 +76,7 @@
 		</p>
 		<p>Quantité: {form.card_quantity}</p>
 		<p>Coût: {form.card_mana_cost || 'N/A'}</p>
-		<p>Couleurs: {form.card_colors?.join(', ') || 'Aucune'}</p>
+		<p>Couleur(s): {form.card_colors?.join(', ') || 'Aucune'}</p>
 		<img src={form.card_image_normal} alt={form.card_name} />
 	</div>
 
