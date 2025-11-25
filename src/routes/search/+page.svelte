@@ -4,6 +4,8 @@
 	import { enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
+
+	let searchResults = $state<any[]>([]);
 </script>
 
 <!-- <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8"> -->
@@ -33,7 +35,38 @@
 </div>
 
 <div class="mx-auto mt-10">
-	<form action="?/search" method="POST" class="mx-auto" use:enhance>
+	<form
+		action="?/search"
+		method="POST"
+		class="mx-auto"
+		use:enhance={() => {
+			return async ({ result, update }) => {
+				// Mettre à jour form normalement
+				await update();
+
+				// Ajouter à la liste si succès
+				if (
+					result.type === 'success' &&
+					result.data?.context === 'search' &&
+					result.data?.card_name
+				) {
+					searchResults = [
+						{
+							name: result.data.card_name,
+							setcode: result.data.card_setcode,
+							collector_number: result.data.card_collector_number,
+							set_name: result.data.card_set_name,
+							image: result.data.card_image_normal,
+							colors: result.data.card_colors,
+							mana_cost: result.data.card_mana_cost,
+							quantity: result.data.card_quantity
+						},
+						...searchResults
+					];
+				}
+			};
+		}}
+	>
 		<div class="mb-6 grid grid-cols-4 gap-4 p-10">
 			<div>
 				<div>
@@ -69,34 +102,41 @@
 {/if}
 
 <!-- Afficher les résultats de la recherche -->
-{#if form?.context === 'search' && form?.card_name}
-	<div class="mt-4 rounded bg-gray-100 p-4">
-		<p>
-			{form.card_name} - {form.card_set_name} ({form.card_setcode}) #{form.card_collector_number}
-		</p>
-		<p>Quantité: {form.card_quantity}</p>
-		<p>Coût: {form.card_mana_cost || 'N/A'}</p>
-		<p>Couleur(s): {form.card_colors?.join(', ') || 'Aucune'}</p>
-		<img src={form.card_image_normal} alt={form.card_name} />
+<!-- Afficher TOUS les résultats accumulés -->
+{#if searchResults.length > 0}
+	<div class="mt-6 space-y-4">
+		<h3 class="text-xl font-bold">Résultats de recherche ({searchResults.length})</h3>
+
+		{#each searchResults as result (result.setcode + result.collector_number)}
+			<div class="mt-4 rounded bg-gray-100 p-4">
+				<p>
+					{result.name} - {result.set_name} ({result.setcode}) #{result.collector_number}
+				</p>
+				<p>Quantité: {result.quantity}</p>
+				<p>Coût: {result.mana_cost || 'N/A'}</p>
+				<p>Couleur(s): {result.colors?.join(', ') || 'Aucune'}</p>
+				<img src={result.image} alt={result.name} />
+
+				<form action="?/save" method="POST" class="mt-4" use:enhance>
+					<input type="hidden" name="setcode" value={result.setcode} />
+					<input type="hidden" name="collector_number" value={result.collector_number} />
+					<input type="hidden" name="quantity" value={result.quantity} />
+					<input type="hidden" name="name" value={result.name} />
+					<input type="hidden" name="image_uri" value={result.image} />
+					<input type="hidden" name="colors" value={result.colors} />
+					<input type="hidden" name="mana_cost" value={result.mana_cost} />
+					<input type="hidden" name="setname" value={result.set_name} />
+
+					<button
+						type="submit"
+						class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500"
+					>
+						Sauvegarder dans la DB
+					</button>
+				</form>
+			</div>
+		{/each}
 	</div>
-
-	<form action="?/save" method="POST" class="mt-4 space-y-6" use:enhance>
-		<input type="hidden" name="setcode" value={form.card_setcode} />
-		<input type="hidden" name="collector_number" value={form.card_collector_number} />
-		<input type="hidden" name="quantity" value={form.card_quantity} />
-		<input type="hidden" name="name" value={form.card_name} />
-		<input type="hidden" name="image_uri" value={form.card_image_normal} />
-		<input type="hidden" name="colors" value={form.card_colors} />
-		<input type="hidden" name="mana_cost" value={form.card_mana_cost} />
-		<input type="hidden" name="setname" value={form.card_set_name} />
-
-		<button
-			type="submit"
-			class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500"
-		>
-			Sauvegarder dans la DB
-		</button>
-	</form>
 {/if}
 
 <!-- Message de confirmation après sauvegarde -->
