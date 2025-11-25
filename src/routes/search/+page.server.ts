@@ -11,6 +11,7 @@ export const actions = {
 		const collector_number = data.get('collector_number');
 
 		const api_url = `https://api.scryfall.com/cards/${setcode}/${collector_number}`;
+		console.log(api_url);
 		const res = await fetch(api_url);
 
 		if (!res.ok) {
@@ -29,7 +30,8 @@ export const actions = {
 			card_collector_number: card.collector_number,
 			card_name: card.name,
 			card_set_name: card.set_name,
-			card_image_normal: card.image_uris.small,
+			// GERER RECTO/VERSO, ETC
+			card_image_normal: card.image_uris.normal,
 			card_colors: card.colors,
 			card_mana_cost: card.mana_cost
 		};

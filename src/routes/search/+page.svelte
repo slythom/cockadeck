@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, Label, Helper } from 'flowbite-svelte';
+	import { Button, Input, Label, Helper, Card } from 'flowbite-svelte';
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 
@@ -105,37 +105,53 @@
 <!-- Afficher TOUS les résultats accumulés -->
 {#if searchResults.length > 0}
 	<div class="mt-6 space-y-4">
-		<h3 class="text-xl font-bold">Résultats de recherche ({searchResults.length})</h3>
+		<!-- <h3 class="text-xl font-bold">Résultats de recherche ({searchResults.length})</h3> -->
+		<div class="grid grid-cols-4">
+			{#each searchResults as result (result.name)}
+				<Card class="border-none p-4 shadow-xl">
+					<div class="m-6">
+						<img src={result.image} alt={result.name} />
+						<h3 class="mt-2 mb-2 font-bold tracking-tight text-gray-900 dark:text-white">
+							{result.name}
+						</h3>
+						<p class="mb-2 leading-tight font-normal text-gray-700 dark:text-gray-400">
+							{result.set_name} #{result.collector_number}
+						</p>
+						<p class="mb-2 leading-tight font-normal text-gray-700 dark:text-gray-400">
+							Mana cost: {result.mana_cost || 'N/A'}
+						</p>
+						<p class="mb-2 leading-tight font-normal text-gray-700 dark:text-gray-400">
+							Quantity: {result.quantity}
+						</p>
+						<Button class="w-40">Read more</Button>
+						<form action="?/save" method="POST" class="mt-4" use:enhance>
+							<input type="hidden" name="setcode" value={result.setcode} />
+							<input type="hidden" name="collector_number" value={result.collector_number} />
+							<input type="hidden" name="quantity" value={result.quantity} />
+							<input type="hidden" name="name" value={result.name} />
+							<input type="hidden" name="image_uri" value={result.image} />
+							<input type="hidden" name="colors" value={result.colors} />
+							<input type="hidden" name="mana_cost" value={result.mana_cost} />
+							<input type="hidden" name="setname" value={result.set_name} />
 
-		{#each searchResults as result (result.setcode + result.collector_number)}
-			<div class="mt-4 rounded bg-gray-100 p-4">
-				<p>
-					{result.name} - {result.set_name} ({result.setcode}) #{result.collector_number}
-				</p>
-				<p>Quantité: {result.quantity}</p>
-				<p>Coût: {result.mana_cost || 'N/A'}</p>
-				<p>Couleur(s): {result.colors?.join(', ') || 'Aucune'}</p>
-				<img src={result.image} alt={result.name} />
+							<Button type="submit">Save</Button>
+						</form>
+					</div>
+				</Card>
 
-				<form action="?/save" method="POST" class="mt-4" use:enhance>
-					<input type="hidden" name="setcode" value={result.setcode} />
-					<input type="hidden" name="collector_number" value={result.collector_number} />
-					<input type="hidden" name="quantity" value={result.quantity} />
-					<input type="hidden" name="name" value={result.name} />
-					<input type="hidden" name="image_uri" value={result.image} />
-					<input type="hidden" name="colors" value={result.colors} />
-					<input type="hidden" name="mana_cost" value={result.mana_cost} />
-					<input type="hidden" name="setname" value={result.set_name} />
+				<!-- <div class="mx-auto mt-4 rounded p-6 text-sm shadow-xl"> -->
+				<!-- <p class="font-bold">
+						{result.name}
+					</p>
+					<p>{result.set_name} #{result.collector_number}</p>
+					<p>Mana cost: {result.mana_cost || 'N/A'}</p>
+					<p>Quantity: {result.quantity}</p> -->
+				<!-- <p>Couleur(s): {result.colors?.join(', ') || 'Aucune'}</p> -->
+				<!-- <img src={result.image} alt={result.name} /> -->
 
-					<button
-						type="submit"
-						class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500"
-					>
-						Sauvegarder dans la DB
-					</button>
-				</form>
-			</div>
-		{/each}
+				<!-- </div> -->
+			{/each}
+		</div>
 	</div>
 {/if}
 
