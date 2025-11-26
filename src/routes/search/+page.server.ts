@@ -22,6 +22,9 @@ export const actions = {
 		}
 
 		const card = await res.json();
+		console.log(card);
+
+		const transformImage = card.image_uris?.normal ?? card.card_faces?.[0]?.image_uris?.normal;
 
 		return {
 			context: 'search',
@@ -30,8 +33,7 @@ export const actions = {
 			card_collector_number: card.collector_number,
 			card_name: card.name,
 			card_set_name: card.set_name,
-			// GERER RECTO/VERSO, ETC
-			card_image_normal: card.image_uris.normal,
+			card_image_normal: transformImage,
 			card_colors: card.colors,
 			card_mana_cost: card.mana_cost
 		};
