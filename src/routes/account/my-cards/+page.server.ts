@@ -20,63 +20,41 @@ ${cards}
 </zone>
 </cockatrice_deck>`;
 }
-
 export const load: PageServerLoad = async ({ locals }) => {
 	const authuser = locals.user;
-	{
-		if (!authuser) throw error(401, 'You must be authenticated');
-	}
+	if (!authuser) throw error(401, 'You must be authenticated');
 
 	const userCards = await db.select().from(cards).where(eq(cards.userId, authuser.id));
+
 	const userCollections = await db
 		.select()
 		.from(collections)
 		.where(eq(collections.userId, authuser.id));
 
+	// NOUVEAU : Charger aussi les cartes de collections avec JOIN
+	const collectionCardsData = await db
+		.select({
+			card_id: collection_cards.card_id,
+			collection_id: collection_cards.collection_id,
+			quantity: collection_cards.quantity,
+			card_name: cards.name,
+			image_uri: cards.image_uri,
+			setcode: cards.setcode
+			// ... autres champs dont tu as besoin
+		})
+		.from(collection_cards)
+		.innerJoin(cards, eq(collection_cards.card_id, cards.id))
+		.innerJoin(collections, eq(collection_cards.collection_id, collections.id))
+		.where(eq(collections.userId, authuser.id));
+
 	return {
 		cards: userCards,
-		collections: userCollections
+		collections: userCollections,
+		collectionCards: collectionCardsData // Données pour filtrer côté client
 	};
 };
 
 export const actions = {
-	addToCollection: async ({ locals, request }) => {
-		const user = locals.user;
-
-		if (!user) {
-			return fail(401, {
-				context: 'save',
-				error: 'Non authentifié'
-			});
-		}
-
-		const data = await request.formData();
-		const collection_id = data.get('collection_id');
-		const card_id = data.get('card_id');
-		const quantity = data.get('quantity');
-
-		await db
-			.insert(collection_cards)
-			.values({
-				collection_id,
-				card_id,
-				quantity: parseInt(quantity) // Convertir en nombre
-			})
-			.onConflictDoUpdate({
-				target: [collection_cards.collection_id, collection_cards.card_id],
-				set: {
-					quantity: sql`${collection_cards.quantity} + ${parseInt(quantity)}`
-				}
-			});
-
-		return {
-			context: 'addToCollection',
-			collection_id: collection_id,
-			card_id: card_id,
-			quantity: quantity
-		};
-	},
-
 	export: async ({ locals, request }) => {
 		const user = locals.user;
 
