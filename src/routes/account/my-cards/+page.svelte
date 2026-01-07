@@ -29,31 +29,36 @@
 {#if activeCollectionId}
 	<form action="?/export" method="POST" use:enhance>
 		<div class="p-8">
-		<input name="collection_id" type="hidden" value={activeCollectionId} />
-		<Button color="teal" type="submit">Export for Cockatrice</Button>
+			<input name="collection_id" type="hidden" value={activeCollectionId} />
+			<Button color="teal" type="submit">Export for Cockatrice</Button>
 		</div>
 	</form>
 	<div class="grid grid-cols-2 gap-4 p-8 md:grid-cols-4 lg:grid-cols-6">
 		{#each filteredCollectionCards as card (card.card_id)}
-			<div class="relative">
+			<div class="relative flex">
 				<img src={card.image_uri} alt={card.card_name} />
-				{card.quantity}
+				<div
+					class="absolute top-5 right-5 h-7 w-10 rounded-sm bg-teal-900 text-center font-black text-white"
+				>
+					{card.quantity}
+				</div>
 			</div>
 		{/each}
 	</div>
 {:else}
-<div class="grid grid-cols-2 gap-4 p-8 md:grid-cols-4 lg:grid-cols-6">
-	{#each data.cards as card (card.id)}
-		<div class="relative">
-			<img src={card.image_uri} alt={card.name} />
-			{card.quantity}
-		</div>
-	{/each}
+	<div class="grid grid-cols-2 gap-4 p-8 md:grid-cols-4 lg:grid-cols-6">
+		{#each data.cards as card (card.id)}
+			<div class="relative">
+				<img src={card.image_uri} alt={card.name} />
+				{card.quantity}
 			</div>
-
+		{/each}
+	</div>
 {/if}
 {#if form?.context === 'export' && form?.xml}
 	<a href={`data:text/xml;charset=utf-8,${encodeURIComponent(form.xml)}`} download="collection.cod">
-		<Button color="red" type="button">Télécharger le fichier XML</Button>
+		<div class="p-8">
+			<Button color="blue" type="button" class="cursor-pointer">Download deck!</Button>
+		</div>
 	</a>
 {/if}

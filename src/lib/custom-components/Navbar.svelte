@@ -13,7 +13,6 @@
 		<NavLi href="/">Home</NavLi>
 		<NavLi href="/search">Search</NavLi>
 		<NavLi href="/account/my-cards">My cards</NavLi>
-		<NavLi href="/account/my-decks">My decks</NavLi>
 		<NavLi href="/account/connect">Account</NavLi>
 	</NavUl>
 </Navbar>
