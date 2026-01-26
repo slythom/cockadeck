@@ -48,9 +48,13 @@
 {:else}
 	<div class="grid grid-cols-2 gap-4 p-8 md:grid-cols-4 lg:grid-cols-6">
 		{#each data.cards as card (card.id)}
-			<div class="relative">
+			<div class="relative flex">
 				<img src={card.image_uri} alt={card.name} />
-				{card.quantity}
+				<div
+					class="absolute top-5 right-5 h-7 w-10 rounded-sm bg-teal-900 text-center font-black text-white"
+				>
+					{card.quantity}
+				</div>
 			</div>
 		{/each}
 	</div>
