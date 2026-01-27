@@ -46,7 +46,7 @@
 		{/each}
 	</div>
 {:else}
-	<div class="grid grid-cols-2 gap-4 p-8 md:grid-cols-4 lg:grid-cols-6">
+	<div class="grid grid-cols-2 gap-10 p-8 md:grid-cols-4 lg:grid-cols-4">
 		{#each data.cards as card (card.id)}
 			<div class="relative flex">
 				<img src={card.image_uri} alt={card.name} />
@@ -55,6 +55,25 @@
 				>
 					{card.quantity}
 				</div>
+
+<div class="absolute top-20">
+				<!-- Formulaire d'ajout à collection -->
+                <form method="POST" action="?/addToCollection" use:enhance class="mt-2">
+                    <input type="hidden" name="card_id" value={card.id} />
+                    <input type="hidden" name="quantity" value="1" />
+                    
+                    <select name="collection_id" required class="w-full text-sm rounded">
+                        <option value="" disabled selected>+ Collection</option>
+                        {#each data.collections as collection}
+                            <option value={collection.id}>{collection.name}</option>
+                        {/each}
+                    </select>
+                    
+                    <Button size="xs" type="submit" class="w-full mt-1">Ajouter</Button>
+                </form>
+
+</div>
+
 			</div>
 		{/each}
 	</div>

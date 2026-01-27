@@ -1,7 +1,7 @@
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { cards, collections } from '$lib/server/db/schema';
+import { cards, collections, collection_cards } from '$lib/server/db/schema';
 
 export const actions = {
 	search: async ({ request, fetch }) => {
@@ -112,5 +112,5 @@ export const actions = {
 			message: 'Collection créée avec succès !',
 			name: name
 		};
-	}
+	},
 } satisfies Actions;

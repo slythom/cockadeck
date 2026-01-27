@@ -88,5 +88,41 @@ export const actions = {
 			data: collectionData,
 			xml: xmlContent
 		};
+	},
+
+	addToCollection: async ({ locals, request }) => {
+		const user = locals.user;
+
+		if (!user) {
+			return fail(401, {
+				context: 'addToCollection',
+				error: 'Non authentifié'
+			});
+		}
+
+		const data = await request.formData();
+		const collection_id = String(data.get('collection_id'));
+		const card_id = String(data.get('card_id'));
+		const quantity = Number(data.get('quantity'));
+
+
+
+		await db.insert(collection_cards).values({
+            collection_id,
+            card_id,
+            quantity
+        })
+		.onConflictDoUpdate({
+            target: [collection_cards.collection_id, collection_cards.card_id],
+            set: {
+                quantity: sql`${collection_cards.quantity} + ${quantity}`
+            }
+        });
+
+		return {
+			context: 'addToCollection',
+			message:"Carte  ajoutée à la collec!"
+		};
 	}
+
 } satisfies Actions;
