@@ -15,7 +15,7 @@ export const session = sqliteTable('session', {
 	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
 
-export const collections = sqliteTable('collections', {
+export const decks = sqliteTable('decks', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
@@ -38,18 +38,18 @@ export const cards = sqliteTable('cards', {
 	quantity: integer('quantity')
 });
 
-export const collection_cards = sqliteTable(
-	'collection_cards',
+export const deck_cards = sqliteTable(
+	'deck_cards',
 	{
-		collection_id: text('collection_id')
+		deck_id: text('deck_id')
 			.notNull()
-			.references(() => collections.id),
+			.references(() => decks.id),
 		card_id: text('card_id')
 			.notNull()
 			.references(() => cards.id),
 		quantity: integer('quantity')
 	},
 	(table) => ({
-		pk: primaryKey(table.collection_id, table.card_id)
+		pk: primaryKey(table.deck_id, table.card_id)
 	})
 );

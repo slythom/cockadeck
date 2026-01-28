@@ -7,11 +7,11 @@
 	let { data, form }: PageProps = $props();
 
 	// Lire le filtre depuis l'URL
-	let activeCollectionId = $derived(page.url.searchParams.get('collection'));
+	let activeDeckId = $derived(page.url.searchParams.get('deck'));
 
-	// Filtrer les cartes de collection
-	let filteredCollectionCards = $derived(
-		data.collectionCards.filter((c) => c.collection_id === activeCollectionId)
+	// Filtrer les cartes de deck
+	let filteredDeckCards = $derived(
+		data.deckCards.filter((c) => c.deck_id === activeDeckId)
 	);
 </script>
 
@@ -19,22 +19,22 @@
 <div class="mx-auto mb-3 flex flex-wrap items-center justify-center gap-3 py-4">
 	<Button onclick={() => goto('?')}>All Cards</Button>
 
-	{#each data.collections as collection (collection.id)}
-		<Button onclick={() => goto(`?collection=${collection.id}`)}>
-			{collection.name}
+	{#each data.decks as deck (deck.id)}
+		<Button onclick={() => goto(`?deck=${deck.id}`)}>
+			{deck.name}
 		</Button>
 	{/each}
 </div>
 
-{#if activeCollectionId}
+{#if activeDeckId}
 	<form action="?/export" method="POST" use:enhance>
 		<div class="p-8">
-			<input name="collection_id" type="hidden" value={activeCollectionId} />
+			<input name="deck_id" type="hidden" value={activeDeckId} />
 			<Button color="teal" type="submit">Export for Cockatrice</Button>
 		</div>
 	</form>
 	<div class="grid grid-cols-2 gap-4 p-8 md:grid-cols-4 lg:grid-cols-6">
-		{#each filteredCollectionCards as card (card.card_id)}
+		{#each filteredDeckCards as card (card.card_id)}
 			<div class="relative flex">
 				<img src={card.image_uri} alt={card.card_name} />
 				<div
@@ -57,15 +57,15 @@
 				</div>
 
 <div class="absolute top-20">
-				<!-- Formulaire d'ajout à collection -->
-                <form method="POST" action="?/addToCollection" use:enhance class="mt-2">
+				<!-- Formulaire d'ajout à deck -->
+                <form method="POST" action="?/addToDeck" use:enhance class="mt-2">
                     <input type="hidden" name="card_id" value={card.id} />
                     <input type="hidden" name="quantity" value="1" />
                     
-                    <select name="collection_id" required class="w-full text-sm rounded">
-                        <option value="" disabled selected>+ Collection</option>
-                        {#each data.collections as collection}
-                            <option value={collection.id}>{collection.name}</option>
+                    <select name="deck_id" required class="w-full text-sm rounded">
+                        <option value="" disabled selected>+ deck</option>
+                        {#each data.decks as deck}
+                            <option value={deck.id}>{deck.name}</option>
                         {/each}
                     </select>
                     
@@ -79,7 +79,7 @@
 	</div>
 {/if}
 {#if form?.context === 'export' && form?.xml}
-	<a href={`data:text/xml;charset=utf-8,${encodeURIComponent(form.xml)}`} download="collection.cod">
+	<a href={`data:text/xml;charset=utf-8,${encodeURIComponent(form.xml)}`} download="deck.cod">
 		<div class="p-8">
 			<Button color="blue" type="button" class="cursor-pointer">Download deck!</Button>
 		</div>

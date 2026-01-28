@@ -1,7 +1,7 @@
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { cards, collections, collection_cards } from '$lib/server/db/schema';
+import { cards, decks, deck_cards } from '$lib/server/db/schema';
 
 export const actions = {
 	search: async ({ request, fetch }) => {
@@ -100,7 +100,7 @@ export const actions = {
 		const data = await request.formData();
 		const name = String(data.get('name') ?? '');
 
-		await db.insert(collections).values({
+		await db.insert(decks).values({
 			id: crypto.randomUUID(),
 			userId: user.id,
 			name
