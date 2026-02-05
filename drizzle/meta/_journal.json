@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1770324379951,
+      "tag": "0000_faulty_ben_parker",
+      "breakpoints": true
+    }
+  ]
+}

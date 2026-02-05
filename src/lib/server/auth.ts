@@ -17,7 +17,7 @@ export function generateSessionToken() {
 
 export async function createSession(token: string, userId: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const session: table.Session = {
+	const session = {
 		id: sessionId,
 		userId,
 		expiresAt: new Date(Date.now() + DAY_IN_MS * 30)
@@ -31,7 +31,7 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.username },
+			user: { id: table.user.id, email: table.user.email },
 			session: table.session
 		})
 		.from(table.session)
@@ -49,14 +49,14 @@ export async function validateSessionToken(token: string) {
 		return { session: null, user: null };
 	}
 
-	const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
-	if (renewSession) {
-		session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
-		await db
-			.update(table.session)
-			.set({ expiresAt: session.expiresAt })
-			.where(eq(table.session.id, session.id));
-	}
+	// const renewSession = Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15;
+	// if (renewSession) {
+	// 	session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
+	// 	await db
+	// 		.update(table.session)
+	// 		.set({ expiresAt: session.expiresAt })
+	// 		.where(eq(table.session.id, session.id));
+	// }
 
 	return { session, user };
 }
@@ -70,7 +70,10 @@ export async function invalidateSession(sessionId: string) {
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
-		path: '/'
+		path: '/',
+		httpOnly: true,
+		sameSite: 'lax',
+		secure: process.env.NODE_ENV === "production"
 	});
 }
 

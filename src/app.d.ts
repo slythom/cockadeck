@@ -6,9 +6,12 @@ declare global {
 			user: import('$lib/server/auth').SessionValidationResult['user'];
 			session: import('$lib/server/auth').SessionValidationResult['session'];
 		}
+		interface Locals {
+			user: { id: string; email: string } | null;
+			session: { id: string; userId: string; expiresAt: Date } | null;
+		}
 
 		// interface Error {}
-		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
