@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import type { PageProps } from './$types';
-	// let { form }: PageProps = $props();
+  let { form }: PageProps = $props();
   import { Card, Button, Label, Input, Checkbox } from "flowbite-svelte";
 </script>
 
 <Card class="p-4 sm:p-6 md:p-8">
-  <form class="flex flex-col space-y-6" action="?/signup" method="POST" use:enhance>
+  <form class="flex flex-col space-y-6" action="?/signin" method="POST" use:enhance>
     <h3 class="text-xl font-medium text-gray-900 dark:text-white">Sign in to our platform</h3>
     <Label class="space-y-2">
       <span>Your email</span>
@@ -23,9 +23,9 @@
     <Button type="submit" class="w-full">Log in!</Button>
   </form>
 </Card>
-<!-- {#if form?.success === false}
+{#if form?.success === false}
   <p class="text-red-500 mt-4">{form.message}</p>
 {/if}
 {#if form?.success === true}
   <p class="text-green-500 mt-4">{form.message}</p>
-{/if} -->
+{/if}
