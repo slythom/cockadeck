@@ -37,8 +37,9 @@ export const actions = {
             where: (user, { eq }) => eq(user.email, email)
         });
         if (existingUser) {
-            return fail(400, {
-                message: 'This email address already exists.'
+           return fail(400, {
+                success: false,
+                message: 'Email address already in use.'
             });
         }
 
