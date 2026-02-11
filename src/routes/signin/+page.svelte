@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import type { PageProps } from './$types';
-  let { form }: PageProps = $props();
+  let { form, data }: PageProps = $props();
   import { Card, Button, Label, Input, Checkbox } from "flowbite-svelte";
 </script>
 
@@ -27,5 +27,5 @@
   <p class="text-red-500 mt-4">{form.message}</p>
 {/if}
 {#if form?.success === true}
-  <p class="text-green-500 mt-4">{form.message}</p>
+  <p class="text-green-500 mt-4">{form.message}. Welcome, {data.userEmail}.</p>
 {/if}

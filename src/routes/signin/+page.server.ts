@@ -6,10 +6,15 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 import * as auth from '$lib/server/auth';
 
-// export const load: PageServerLoad = async ({ cookies }) => {
-// 	const user = await db.getUserFromSession(cookies.get('sessionid'));
-// 	return { user };
-// };
+export const load: PageServerLoad = async (event) => {
+	if (event.locals.user) {
+        const userEmail = event.locals.user.email
+        console.log(userEmail)
+		return {userEmail};
+	}
+	return {};
+};
+
 
 export const actions = {
     signin: async (event) => { const {request} = event; 
