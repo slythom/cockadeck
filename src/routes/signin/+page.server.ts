@@ -4,6 +4,7 @@ import { fail } from '@sveltejs/kit';
 import * as table from '$lib/server/db/schema';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
+import * as auth from '$lib/server/auth';
 
 // export const load: PageServerLoad = async ({ cookies }) => {
 // 	const user = await db.getUserFromSession(cookies.get('sessionid'));
@@ -11,7 +12,7 @@ import type { PageServerLoad, Actions } from './$types';
 // };
 
 export const actions = {
-    signin: async ({ cookies, request }) => {
+    signin: async (event) => { const {request} = event; 
         const data = await request.formData();
         const email = data.get('email')?.toString();
         const password = data.get('password')?.toString();
@@ -44,7 +45,15 @@ export const actions = {
             return fail(400, { success: false, message: 'Incorrect password.' })
         }
 
-        // TODO: generate session token
+        // generate session token
+        const newSessionToken = auth.generateSessionToken();
+        console.log('newSession token généré:', newSessionToken)
+        // create session
+        const newUserSession = await auth.createSession(newSessionToken, findUser.id);
+        console.log('newUserSession créé:', newUserSession)
+        // create cookie with session
+        auth.setSessionTokenCookie(event, newSessionToken, newUserSession.expiresAt);
+        console.log('setSessionTokenCookie lancé:', auth.setSessionTokenCookie)
 
         return { success: true, message: "User successfully signed in." };
     },
