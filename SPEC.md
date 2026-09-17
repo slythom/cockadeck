@@ -34,7 +34,7 @@ The app is authentication-gated, hosted on the web, responsive, and designed for
 ### Release ordering (deck-first)
 
 1. **MVP**: Auth → card search → add to deck → deck view → `.cod` export.
-2. **Increment 2**: Collection (add, view, filter) → CSV export.
+2. **Increment 2**: Collection (add, view, filter) → CSV export → collection comparison (tradable view).
 3. **Post-MVP**: Name search, other printings, deck statistics, import.
 
 ---
@@ -51,6 +51,8 @@ The app is authentication-gated, hosted on the web, responsive, and designed for
 | **Zone** | `main` (default), `sideboard`, or `commander`. |
 | **Format** | Deck metadata: `40-card` or `commander`. Informational only — no validation in MVP. |
 | **Owned / missing** | A collection/set-completion concept, per **printing**: when viewing the contents of a set, a card is "owned" if the user has it in their collection, otherwise "missing" (e.g. #10 and #147 missing from OTJ). Not shown in decks. |
+| **Tradable** | A comparison tag, per **card name**: when viewing another user's shared collection, a card is tradable if the viewer owns zero copies of that card name (any printing, any finish). Deliberately different granularity from owned/missing. |
+| **Shared collection** | A collection whose owner has opted in to making it visible to other users. Default: private. |
 
 ---
 
@@ -113,7 +115,20 @@ Requirements use IDs (`FR-<area>-<n>`) for traceability.
 | FR-COLL-04 | Collection view can be filtered by: set (name or code), rarity, mana cost, finish, owned/missing. Filters can be combined. | MVP (Incr. 2) |
 | FR-COLL-05 | **Set completion**: when filtered to a set, the collection view displays *all* cards of that set (fetched from Scryfall), each marked **owned** or **missing** per printing. | MVP (Incr. 2) |
 
-### 5.5 Export (MVP)
+### 5.5 Collection Comparison ("Tradable" view) (Incr. 2+)
+
+Depends on 5.4. Lets a user find trade candidates in other users' collections.
+
+| ID | Requirement | Priority |
+|---|---|---|
+| FR-CMP-01 | A user can toggle their collection's visibility to other users (shared / private). Default: private. | Incr. 2+ |
+| FR-CMP-02 | A user can browse a list of users who share their collection and open one. Private collections are not listed or reachable. | Incr. 2+ |
+| FR-CMP-03 | Viewing another user's shared collection shows the same fields and filters as one's own collection view, plus a **Tradable** tag (or equivalent visual overlay) on every card the viewer owns zero copies of by card name (any printing, any finish). | Incr. 2+ |
+| FR-CMP-04 | The comparison view can be filtered by tradable status. | Incr. 2+ |
+| FR-CMP-05 | The comparison view is read-only: the viewer cannot modify the other user's collection. | Incr. 2+ |
+| — | Reverse comparison ("what I own that they miss"), trade offers, messaging between users | Out |
+
+### 5.6 Export (MVP)
 
 | ID | Requirement | Priority |
 |---|---|---|
@@ -122,7 +137,7 @@ Requirements use IDs (`FR-<area>-<n>`) for traceability.
 | FR-EXP-03 | A user can export their collection as CSV — one row per (printing, finish) with at least: name, set code, set name, collector number, rarity, finish, quantity. | MVP (Incr. 2) |
 | FR-EXP-04 | Exported files download with sensible filenames (e.g. `deckname.cod`, `collection-2026-09-16.csv`). | MVP |
 
-### 5.6 Deck Statistics (Post-MVP)
+### 5.7 Deck Statistics (Post-MVP)
 
 | ID | Requirement | Priority |
 |---|---|---|
@@ -130,7 +145,7 @@ Requirements use IDs (`FR-<area>-<n>`) for traceability.
 | FR-STAT-02 | Average mana value, land/spell breakdown, card-type distribution. | Post-MVP |
 | FR-STAT-03 | Recommended land count by color (heuristic TBD). | Post-MVP |
 
-### 5.7 Import (Post-MVP)
+### 5.8 Import (Post-MVP)
 
 | ID | Requirement | Priority |
 |---|---|---|
@@ -146,7 +161,7 @@ Requirements use IDs (`FR-<area>-<n>`) for traceability.
 | NFR-01 | **Reactivity**: common interactions (search, add, filter, quantity change) update the UI without full page reloads; the interface must feel low-latency on a normal connection. |
 | NFR-02 | **Responsive**: usable on desktop and mobile widths; primary flows (search → add → view → export) work on a phone. |
 | NFR-03 | **UI style**: component look-and-feel inspired by shadcn/ui (grayscale palette, consistent radius/spacing, cards, dialogs, tables, form controls). |
-| NFR-04 | **Privacy**: users can only see and modify their own data. No enumeration of other users. |
+| NFR-04 | **Privacy**: users can only *modify* their own data. A user's collection is *visible* to other users only if they explicitly enabled sharing (FR-CMP-01); private collections and non-collection data are never exposed. |
 | NFR-05 | **Scryfall etiquette**: card data fetched live is cached locally; requests respect Scryfall's rate-limit guidance (~10 req/s, 50–100 ms spacing). Card images are hotlinked from Scryfall's CDN. |
 | NFR-06 | **Hosting**: deployable as a single self-contained web application on a small VPS/PaaS; no external service dependencies beyond Scryfall. |
 
@@ -180,3 +195,5 @@ Assumptions recorded during design — flag if any are wrong:
 | D10 | Live Scryfall API calls with local caching. | Q9 |
 | D11 | Owned/missing is a collection set-completion concept (per printing); decks do not show it. | §7.1 |
 | D12 | No commander-specific `.cod` handling; in-app `commander` zone exports to `main`. Commander is shown as a UI label/tag only. | §7.2 |
+| D13 | Collection visibility is opt-in per user (default private); only shared collections are browsable. | §5.5 |
+| D14 | Tradable is name-level (viewer owns zero copies of the card name); comparison is one-way (viewer → other's collection). | §5.5 |
