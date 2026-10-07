@@ -1,0 +1,4 @@
+cockadeck
+*.db
+*.db-shm
+*.db-wal

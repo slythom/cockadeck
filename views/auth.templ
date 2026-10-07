@@ -1,0 +1,52 @@
+package views
+
+templ LoginPage(email, err string) {
+	@Layout("Log in", false) {
+		<section class="panel auth-panel">
+			<h1 class="section-label">Access Terminal</h1>
+			if err != "" {
+				<p class="alert alert-error">{ err }</p>
+			}
+			<form method="post" action="/login" class="form">
+				<label class="field">
+					<span>Email</span>
+					<input type="email" name="email" value={ email } required autocomplete="email"/>
+				</label>
+				<label class="field">
+					<span>Password</span>
+					<input type="password" name="password" required autocomplete="current-password"/>
+				</label>
+				<button class="btn" type="submit">Log in</button>
+			</form>
+			<p class="muted">No account? <a href="/register">Register</a></p>
+		</section>
+	}
+}
+
+templ RegisterPage(email, displayName, err string) {
+	@Layout("Register", false) {
+		<section class="panel auth-panel">
+			<h1 class="section-label">New Operative</h1>
+			if err != "" {
+				<p class="alert alert-error">{ err }</p>
+			}
+			<form method="post" action="/register" class="form">
+				<label class="field">
+					<span>Email</span>
+					<input type="email" name="email" value={ email } required autocomplete="email"/>
+				</label>
+				<label class="field">
+					<span>Display name</span>
+					<input type="text" name="display_name" value={ displayName } required autocomplete="nickname"/>
+				</label>
+				<label class="field">
+					<span>Password</span>
+					<input type="password" name="password" required minlength="10" autocomplete="new-password"/>
+				</label>
+				<p class="hint">Minimum 10 characters.</p>
+				<button class="btn" type="submit">Register</button>
+			</form>
+			<p class="muted">Have an account? <a href="/login">Log in</a></p>
+		</section>
+	}
+}
