@@ -160,7 +160,7 @@ Depends on 5.4. Lets a user find trade candidates in other users' collections.
 |---|---|
 | NFR-01 | **Reactivity**: common interactions (search, add, filter, quantity change) update the UI without full page reloads; the interface must feel low-latency on a normal connection. |
 | NFR-02 | **Responsive**: usable on desktop and mobile widths; primary flows (search → add → view → export) work on a phone. |
-| NFR-03 | **UI style**: component look-and-feel inspired by shadcn/ui (grayscale palette, consistent radius/spacing, cards, dialogs, tables, form controls). |
+| NFR-03 | **UI style**: dark "mission-control / HUD" aesthetic inspired by the Cyberdefend dashboard by Fuselab Creative (reference screenshots in `design/`). Dark blue-tinted background, translucent panels with thin borders, glowing cyan/teal accents, amber/red for warnings and errors, letter-spaced small-caps section labels, dense tabular data. Built on a shadcn/ui-style component foundation (cards, dialogs, tables, form controls) with a custom dark theme. The reference's 3D globe, animations, and hero artwork are **not** required. |
 | NFR-04 | **Privacy**: users can only *modify* their own data. A user's collection is *visible* to other users only if they explicitly enabled sharing (FR-CMP-01); private collections and non-collection data are never exposed. |
 | NFR-05 | **Scryfall etiquette**: card data fetched live is cached locally; requests respect Scryfall's rate-limit guidance (~10 req/s, 50–100 ms spacing). Card images are hotlinked from Scryfall's CDN. |
 | NFR-06 | **Hosting**: deployable as a single self-contained web application on a small VPS/PaaS; no external service dependencies beyond Scryfall. |
@@ -197,3 +197,4 @@ Assumptions recorded during design — flag if any are wrong:
 | D12 | No commander-specific `.cod` handling; in-app `commander` zone exports to `main`. Commander is shown as a UI label/tag only. | §7.2 |
 | D13 | Collection visibility is opt-in per user (default private); only shared collections are browsable. | §5.5 |
 | D14 | Tradable is name-level (viewer owns zero copies of the card name); comparison is one-way (viewer → other's collection). | §5.5 |
+| D15 | UI targets a dark "mission-control / HUD" aesthetic (Cyberdefend references in `design/`), not shadcn/ui's default grayscale theme. | §6 |
