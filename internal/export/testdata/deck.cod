@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cockatrice_deck version="1">
+  <deckname>Gruul Smash</deckname>
+  <comments>fast &amp; loose</comments>
+  <zone name="main">
+    <card number="1" name="Zilortha, Strength Incarnate"></card>
+    <card number="4" name="Lightning Bolt"></card>
+    <card number="24" name="Forest"></card>
+  </zone>
+  <zone name="side">
+    <card number="2" name="Veil of Summer"></card>
+  </zone>
+</cockatrice_deck>

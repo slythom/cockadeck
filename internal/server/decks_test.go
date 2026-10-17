@@ -110,8 +110,31 @@ func TestDeckFlow(t *testing.T) {
 		t.Fatal("rarity filter excluded matching card")
 	}
 
-	// Remove.
+	// Export: commander merges into main, headers set for download.
+	resp = authedForm(t, srv, client, cookie, http.MethodPost, deckPath+"/cards", url.Values{
+		"card_id": {"card-1"}, "zone": {"sideboard"}, "quantity": {"2"},
+	})
+	resp.Body.Close()
+	resp = authedGet(t, srv, client, cookie, deckPath+"/export.cod")
+	cd := resp.Header.Get("Content-Disposition")
+	if ct := resp.Header.Get("Content-Type"); ct != "application/octet-stream" {
+		t.Fatalf("export content-type = %q", ct)
+	}
+	if !strings.Contains(cd, "test-deck.cod") {
+		t.Fatalf("export content-disposition = %q", cd)
+	}
+	exportBody := body(t, resp)
+	if !strings.Contains(exportBody, `<deckname>Test Deck</deckname>`) ||
+		!strings.Contains(exportBody, `<zone name="main">`) ||
+		!strings.Contains(exportBody, `<zone name="side">`) ||
+		!strings.Contains(exportBody, `name="Lightning Greaves"`) {
+		t.Fatalf("export body wrong:\n%s", exportBody)
+	}
+
+	// Remove both remaining rows (commander + sideboard).
 	resp = authedForm(t, srv, client, cookie, http.MethodDelete, deckPath+"/cards/card-1?zone=commander", nil)
+	resp.Body.Close()
+	resp = authedForm(t, srv, client, cookie, http.MethodDelete, deckPath+"/cards/card-1?zone=sideboard", nil)
 	if b := body(t, resp); strings.Contains(b, "Lightning Greaves") {
 		t.Fatal("delete failed")
 	}

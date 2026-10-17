@@ -14,7 +14,10 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 					<span class="badge">{ deck.Format }</span>
 					<span class="muted">{ totalCards(rows) } cards</span>
 				</div>
-				<button class="btn-danger" hx-delete={ deckURL(deck.ID) } hx-confirm="Delete this deck?">Delete</button>
+				<div class="deck-actions">
+					<a class="btn" href={ deckURL(deck.ID) + "/export.cod" } download>Export .cod</a>
+					<button class="btn-danger" hx-delete={ deckURL(deck.ID) } hx-confirm="Delete this deck?">Delete</button>
+				</div>
 			</div>
 			if deck.Description != "" {
 				<p class="muted">{ deck.Description }</p>

@@ -450,3 +450,15 @@ select {
 .added-err {
 	color: var(--danger);
 }
+
+.deck-actions {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.deck-actions .btn {
+	font-size: 0.85rem;
+	padding: 0.4rem 0.9rem;
+	text-decoration: none;
+}

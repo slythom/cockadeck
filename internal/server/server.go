@@ -42,6 +42,7 @@ func New(cfg config.Config, q sqlcgen.Querier, cards *catalog.Service) http.Hand
 	authed.HandleFunc("GET /decks/{id}", s.deckPage)
 	authed.HandleFunc("POST /decks/{id}", s.updateDeck)
 	authed.HandleFunc("DELETE /decks/{id}", s.deleteDeck)
+	authed.HandleFunc("GET /decks/{id}/export.cod", s.exportDeck)
 	authed.HandleFunc("POST /decks/{id}/cards", s.addDeckCard)
 	authed.HandleFunc("PATCH /decks/{id}/cards/{cardID}", s.updateDeckCard)
 	authed.HandleFunc("DELETE /decks/{id}/cards/{cardID}", s.deleteDeckCard)
