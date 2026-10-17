@@ -15,6 +15,7 @@ templ Layout(title string, authed bool) {
 				<a class="brand" href="/">COCKADECK</a>
 				if authed {
 					<nav class="nav">
+						<a href="/search">Search</a>
 						<a href="/decks">Decks</a>
 						<form method="post" action="/logout" class="inline">
 							<button type="submit" class="linklike">Log out</button>

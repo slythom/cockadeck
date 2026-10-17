@@ -47,7 +47,7 @@ func Layout(title string, authed bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if authed {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav class=\"nav\"><a href=\"/decks\">Decks</a><form method=\"post\" action=\"/logout\" class=\"inline\"><button type=\"submit\" class=\"linklike\">Log out</button></form></nav>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav class=\"nav\"><a href=\"/search\">Search</a> <a href=\"/decks\">Decks</a><form method=\"post\" action=\"/logout\" class=\"inline\"><button type=\"submit\" class=\"linklike\">Log out</button></form></nav>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"cockadeck/internal/auth"
+	"cockadeck/internal/catalog"
 	"cockadeck/internal/config"
 	"cockadeck/internal/store/sqlcgen"
 	"cockadeck/static"
@@ -14,12 +15,13 @@ import (
 )
 
 type Server struct {
-	cfg config.Config
-	q   sqlcgen.Querier
+	cfg   config.Config
+	q     sqlcgen.Querier
+	cards *catalog.Service
 }
 
-func New(cfg config.Config, q sqlcgen.Querier) http.Handler {
-	s := &Server{cfg: cfg, q: q}
+func New(cfg config.Config, q sqlcgen.Querier, cards *catalog.Service) http.Handler {
+	s := &Server{cfg: cfg, q: q, cards: cards}
 
 	public := http.NewServeMux()
 	authed := http.NewServeMux()
@@ -33,6 +35,8 @@ func New(cfg config.Config, q sqlcgen.Querier) http.Handler {
 
 	authed.HandleFunc("GET /{$}", s.home)
 	authed.HandleFunc("GET /decks", s.decksPage)
+	authed.HandleFunc("GET /search", s.searchPage)
+	authed.HandleFunc("GET /search/results", s.searchResults)
 	authed.HandleFunc("POST /logout", s.logout)
 
 	public.Handle("/", auth.RequireAuth(cfg.JWTSecret, authed))

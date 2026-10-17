@@ -11,20 +11,24 @@ import (
 	"testing"
 
 	"cockadeck/internal/auth"
+	"cockadeck/internal/catalog"
 	"cockadeck/internal/config"
+	"cockadeck/internal/scryfall"
 	"cockadeck/internal/server"
 	"cockadeck/internal/store"
 	"cockadeck/internal/store/sqlcgen"
 )
 
-func newTestServer(t *testing.T) http.Handler {
+func newTestServer(t *testing.T, scryfallURL string) http.Handler {
 	t.Helper()
 	db, err := store.Open(context.Background(), filepath.Join(t.TempDir(), "test.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { db.Close() })
-	return server.New(config.Config{JWTSecret: "test-secret", Env: "dev"}, sqlcgen.New(db))
+	q := sqlcgen.New(db)
+	svc := catalog.New(q, scryfall.NewClient(scryfallURL))
+	return server.New(config.Config{JWTSecret: "test-secret", Env: "dev"}, q, svc)
 }
 
 // csrfClient posts a form with the Origin header the CSRF middleware requires.
@@ -51,8 +55,124 @@ func noRedirectClient() *http.Client {
 	}
 }
 
+// registerAndCookie creates an account and returns its session cookie.
+func registerAndCookie(t *testing.T, srv *httptest.Server, client *http.Client) *http.Cookie {
+	t.Helper()
+	resp := postForm(t, srv, client, "/register", url.Values{
+		"email":        {"user@example.com"},
+		"display_name": {"Tester"},
+		"password":     {"tencharacters!"},
+	})
+	defer resp.Body.Close()
+	for _, c := range resp.Cookies() {
+		if c.Name == auth.CookieName {
+			return c
+		}
+	}
+	t.Fatal("register: no session cookie")
+	return nil
+}
+
+const fixtureCardJSON = `{
+	"object": "card",
+	"id": "aaaa-bbbb-cccc",
+	"oracle_id": "oracle-1",
+	"name": "Prospector's Pick",
+	"set": "otj",
+	"set_name": "Outlaws of Thunder Junction",
+	"collector_number": "10",
+	"rarity": "common",
+	"mana_cost": "{1}{G}",
+	"cmc": 2.0,
+	"type_line": "Artifact — Equipment",
+	"image_uris": {"normal": "https://cards.scryfall.io/normal/front/1/0/x.jpg"}
+}`
+
+// scryfallFixture serves canned responses and counts requests.
+func scryfallFixture(t *testing.T) (*httptest.Server, *int) {
+	t.Helper()
+	var hits int
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /cards/otj/10", func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, fixtureCardJSON)
+	})
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		io.WriteString(w, `{"object":"error","code":"not_found","details":"not found"}`)
+	})
+	srv := httptest.NewServer(mux)
+	t.Cleanup(srv.Close)
+	return srv, &hits
+}
+
+func authedGet(t *testing.T, srv *httptest.Server, client *http.Client, cookie *http.Cookie, path string) *http.Response {
+	t.Helper()
+	req, err := http.NewRequest(http.MethodGet, srv.URL+path, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.AddCookie(cookie)
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return resp
+}
+
+func TestSearchFlow(t *testing.T) {
+	fixture, hits := scryfallFixture(t)
+	srv := httptest.NewServer(newTestServer(t, fixture.URL))
+	defer srv.Close()
+	client := noRedirectClient()
+	cookie := registerAndCookie(t, srv, client)
+
+	get := func(path string) (int, string, http.Header) {
+		resp := authedGet(t, srv, client, cookie, path)
+		defer resp.Body.Close()
+		body, _ := io.ReadAll(resp.Body)
+		return resp.StatusCode, string(body), resp.Header
+	}
+
+	// Cache miss → hits Scryfall, renders card.
+	code, body, hdr := get("/search/results?set=otj&num=10")
+	if code != http.StatusOK || !strings.Contains(body, "Prospector") {
+		t.Fatalf("search hit: status %d, body missing card name", code)
+	}
+	if got := hdr.Get("HX-Push-Url"); got != "/search?set=otj&num=10" {
+		t.Fatalf("HX-Push-Url = %q", got)
+	}
+
+	// Cache hit → no second API call.
+	if _, body, _ = get("/search/results?set=otj&num=10"); !strings.Contains(body, "Prospector") {
+		t.Fatal("cached lookup missing card")
+	}
+	if *hits != 1 {
+		t.Fatalf("cache miss: fixture hit %d times, want 1", *hits)
+	}
+
+	// Not found.
+	if _, body, _ = get("/search/results?set=otj&num=999"); !strings.Contains(body, "No card found for OTJ #999") {
+		t.Fatalf("not-found message missing: %s", body)
+	}
+
+	// Invalid input.
+	if _, body, _ = get("/search/results?set=&num="); !strings.Contains(body, "Enter a set code") {
+		t.Fatalf("invalid-input message missing: %s", body)
+	}
+
+	// Full page render with results (shareable URL).
+	code, body, _ = get("/search?set=otj&num=10")
+	if code != http.StatusOK || !strings.Contains(body, "Prospector") || !strings.Contains(body, "Card Search") {
+		t.Fatal("full search page did not render results")
+	}
+}
+
 func TestAuthFlow(t *testing.T) {
-	srv := httptest.NewServer(newTestServer(t))
+	srv := httptest.NewServer(newTestServer(t, "http://127.0.0.1:1"))
 	defer srv.Close()
 	client := noRedirectClient()
 
@@ -121,7 +241,7 @@ func TestAuthFlow(t *testing.T) {
 }
 
 func TestAuthGating(t *testing.T) {
-	srv := httptest.NewServer(newTestServer(t))
+	srv := httptest.NewServer(newTestServer(t, "http://127.0.0.1:1"))
 	defer srv.Close()
 	client := noRedirectClient()
 
@@ -145,7 +265,7 @@ func TestAuthGating(t *testing.T) {
 }
 
 func TestCSRFCheck(t *testing.T) {
-	srv := httptest.NewServer(newTestServer(t))
+	srv := httptest.NewServer(newTestServer(t, "http://127.0.0.1:1"))
 	defer srv.Close()
 	client := noRedirectClient()
 

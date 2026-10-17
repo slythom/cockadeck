@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"os"
 
+	"cockadeck/internal/catalog"
 	"cockadeck/internal/config"
+	"cockadeck/internal/scryfall"
 	"cockadeck/internal/server"
 	"cockadeck/internal/store"
 	"cockadeck/internal/store/sqlcgen"
@@ -40,7 +42,9 @@ func run() error {
 	}
 	defer db.Close()
 
-	srv := server.New(cfg, sqlcgen.New(db))
+	q := sqlcgen.New(db)
+	svc := catalog.New(q, scryfall.NewClient(cfg.ScryfallURL))
+	srv := server.New(cfg, q, svc)
 	slog.Info("listening", "addr", cfg.Addr, "env", cfg.Env)
 	return http.ListenAndServe(cfg.Addr, srv)
 }

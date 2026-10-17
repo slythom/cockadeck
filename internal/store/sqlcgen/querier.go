@@ -10,8 +10,11 @@ import (
 
 type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	GetCardByID(ctx context.Context, id string) (Card, error)
+	GetCardBySetNumber(ctx context.Context, arg GetCardBySetNumberParams) (Card, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int64) (User, error)
+	UpsertCard(ctx context.Context, arg UpsertCardParams) (Card, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -1,0 +1,47 @@
+package views
+
+import "cockadeck/internal/store/sqlcgen"
+
+templ SearchPage(set, num string, card *sqlcgen.Card, errMsg string) {
+	@Layout("Search", true) {
+		<section class="panel">
+			<h1 class="section-label">Card Search</h1>
+			<form action="/search" method="get" hx-get="/search/results" hx-target="#results" class="form-inline">
+				<input type="text" name="set" placeholder="Set code" value={ set } required autocomplete="off"/>
+				<input type="text" name="num" placeholder="Collector #" value={ num } required autocomplete="off"/>
+				<button class="btn" type="submit">Search</button>
+			</form>
+		</section>
+		<div id="results">
+			@SearchResults(card, errMsg)
+		</div>
+	}
+}
+
+templ SearchResults(card *sqlcgen.Card, errMsg string) {
+	if errMsg != "" {
+		<p class="alert alert-error">{ errMsg }</p>
+	}
+	if card != nil {
+		@CardResult(*card)
+	}
+}
+
+templ CardResult(card sqlcgen.Card) {
+	<div class="panel card-result">
+		<img class="card-img" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
+		<div class="card-meta">
+			<h2 class="card-name">{ card.Name }</h2>
+			if card.TypeLine.Valid {
+				<p class="muted">{ card.TypeLine.String }</p>
+			}
+			<p class="muted">{ card.SetName } <span class="dim">·</span> #{ card.CollectorNumber }</p>
+			<p>
+				<span class="badge">{ card.Rarity }</span>
+				if card.ManaCost.Valid {
+					<span class="mana-cost">{ card.ManaCost.String }</span>
+				}
+			</p>
+		</div>
+	</div>
+}
