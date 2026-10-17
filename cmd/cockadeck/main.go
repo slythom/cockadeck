@@ -43,7 +43,7 @@ func run() error {
 	defer db.Close()
 
 	q := sqlcgen.New(db)
-	svc := catalog.New(q, scryfall.NewClient(cfg.ScryfallURL))
+	svc := catalog.New(q, db, scryfall.NewClient(cfg.ScryfallURL))
 	srv := server.New(cfg, q, svc)
 	slog.Info("listening", "addr", cfg.Addr, "env", cfg.Env)
 	return http.ListenAndServe(cfg.Addr, srv)

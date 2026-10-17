@@ -9,12 +9,22 @@ import (
 )
 
 type Querier interface {
+	CreateDeck(ctx context.Context, arg CreateDeckParams) (Deck, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteDeck(ctx context.Context, arg DeleteDeckParams) error
+	DeleteDeckCard(ctx context.Context, arg DeleteDeckCardParams) error
 	GetCardByID(ctx context.Context, id string) (Card, error)
 	GetCardBySetNumber(ctx context.Context, arg GetCardBySetNumberParams) (Card, error)
+	GetDeck(ctx context.Context, arg GetDeckParams) (Deck, error)
+	GetDeckCard(ctx context.Context, arg GetDeckCardParams) (DeckCard, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int64) (User, error)
+	ListDeckCards(ctx context.Context, arg ListDeckCardsParams) ([]ListDeckCardsRow, error)
+	ListDecks(ctx context.Context, userID int64) ([]ListDecksRow, error)
+	SetDeckCardQuantity(ctx context.Context, arg SetDeckCardQuantityParams) error
+	UpdateDeck(ctx context.Context, arg UpdateDeckParams) error
 	UpsertCard(ctx context.Context, arg UpsertCardParams) (Card, error)
+	UpsertDeckCard(ctx context.Context, arg UpsertDeckCardParams) error
 }
 
 var _ Querier = (*Queries)(nil)

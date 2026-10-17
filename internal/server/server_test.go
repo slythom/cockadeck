@@ -19,7 +19,7 @@ import (
 	"cockadeck/internal/store/sqlcgen"
 )
 
-func newTestServer(t *testing.T, scryfallURL string) http.Handler {
+func newTestServer(t *testing.T, scryfallURL string) (http.Handler, *sqlcgen.Queries) {
 	t.Helper()
 	db, err := store.Open(context.Background(), filepath.Join(t.TempDir(), "test.db"))
 	if err != nil {
@@ -27,8 +27,8 @@ func newTestServer(t *testing.T, scryfallURL string) http.Handler {
 	}
 	t.Cleanup(func() { db.Close() })
 	q := sqlcgen.New(db)
-	svc := catalog.New(q, scryfall.NewClient(scryfallURL))
-	return server.New(config.Config{JWTSecret: "test-secret", Env: "dev"}, q, svc)
+	svc := catalog.New(q, db, scryfall.NewClient(scryfallURL))
+	return server.New(config.Config{JWTSecret: "test-secret", Env: "dev"}, q, svc), q
 }
 
 // csrfClient posts a form with the Origin header the CSRF middleware requires.
@@ -125,7 +125,7 @@ func authedGet(t *testing.T, srv *httptest.Server, client *http.Client, cookie *
 
 func TestSearchFlow(t *testing.T) {
 	fixture, hits := scryfallFixture(t)
-	srv := httptest.NewServer(newTestServer(t, fixture.URL))
+	srv := httptest.NewServer(mustServer(newTestServer(t, fixture.URL)))
 	defer srv.Close()
 	client := noRedirectClient()
 	cookie := registerAndCookie(t, srv, client)
@@ -172,7 +172,7 @@ func TestSearchFlow(t *testing.T) {
 }
 
 func TestAuthFlow(t *testing.T) {
-	srv := httptest.NewServer(newTestServer(t, "http://127.0.0.1:1"))
+	srv := httptest.NewServer(mustServer(newTestServer(t, "http://127.0.0.1:1")))
 	defer srv.Close()
 	client := noRedirectClient()
 
@@ -203,8 +203,8 @@ func TestAuthFlow(t *testing.T) {
 	}
 	body, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	if resp.StatusCode != http.StatusOK || !strings.Contains(string(body), "Tester") {
-		t.Fatalf("decks page: status %d, body missing display name", resp.StatusCode)
+	if resp.StatusCode != http.StatusOK || !strings.Contains(string(body), "Decks") {
+		t.Fatalf("decks page: status %d, body missing content", resp.StatusCode)
 	}
 
 	// Duplicate email rejected with a clear message.
@@ -241,7 +241,7 @@ func TestAuthFlow(t *testing.T) {
 }
 
 func TestAuthGating(t *testing.T) {
-	srv := httptest.NewServer(newTestServer(t, "http://127.0.0.1:1"))
+	srv := httptest.NewServer(mustServer(newTestServer(t, "http://127.0.0.1:1")))
 	defer srv.Close()
 	client := noRedirectClient()
 
@@ -265,7 +265,7 @@ func TestAuthGating(t *testing.T) {
 }
 
 func TestCSRFCheck(t *testing.T) {
-	srv := httptest.NewServer(newTestServer(t, "http://127.0.0.1:1"))
+	srv := httptest.NewServer(mustServer(newTestServer(t, "http://127.0.0.1:1")))
 	defer srv.Close()
 	client := noRedirectClient()
 
@@ -296,3 +296,5 @@ func TestCSRFCheck(t *testing.T) {
 		t.Fatalf("csrf cross-origin: got %d, want 403", resp.StatusCode)
 	}
 }
+
+func mustServer(h http.Handler, _ *sqlcgen.Queries) http.Handler { return h }

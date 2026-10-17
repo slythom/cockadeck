@@ -9,7 +9,6 @@ import (
 	"cockadeck/internal/config"
 	"cockadeck/internal/store/sqlcgen"
 	"cockadeck/static"
-	"cockadeck/views"
 
 	"golang.org/x/time/rate"
 )
@@ -34,10 +33,18 @@ func New(cfg config.Config, q sqlcgen.Querier, cards *catalog.Service) http.Hand
 	public.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(static.FS)))
 
 	authed.HandleFunc("GET /{$}", s.home)
-	authed.HandleFunc("GET /decks", s.decksPage)
 	authed.HandleFunc("GET /search", s.searchPage)
 	authed.HandleFunc("GET /search/results", s.searchResults)
 	authed.HandleFunc("POST /logout", s.logout)
+
+	authed.HandleFunc("GET /decks", s.decksPage)
+	authed.HandleFunc("POST /decks", s.createDeck)
+	authed.HandleFunc("GET /decks/{id}", s.deckPage)
+	authed.HandleFunc("POST /decks/{id}", s.updateDeck)
+	authed.HandleFunc("DELETE /decks/{id}", s.deleteDeck)
+	authed.HandleFunc("POST /decks/{id}/cards", s.addDeckCard)
+	authed.HandleFunc("PATCH /decks/{id}/cards/{cardID}", s.updateDeckCard)
+	authed.HandleFunc("DELETE /decks/{id}/cards/{cardID}", s.deleteDeckCard)
 
 	public.Handle("/", auth.RequireAuth(cfg.JWTSecret, authed))
 
@@ -46,14 +53,4 @@ func New(cfg config.Config, q sqlcgen.Querier, cards *catalog.Service) http.Hand
 
 func (s *Server) home(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/decks", http.StatusSeeOther)
-}
-
-func (s *Server) decksPage(w http.ResponseWriter, r *http.Request) {
-	uid, _ := auth.UserIDFromContext(r.Context())
-	u, err := s.q.GetUserByID(r.Context(), uid)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	views.DecksPage(u.DisplayName).Render(r.Context(), w)
 }

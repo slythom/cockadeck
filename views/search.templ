@@ -2,7 +2,7 @@ package views
 
 import "cockadeck/internal/store/sqlcgen"
 
-templ SearchPage(set, num string, card *sqlcgen.Card, errMsg string) {
+templ SearchPage(set, num string, card *sqlcgen.Card, decks []sqlcgen.ListDecksRow, errMsg string) {
 	@Layout("Search", true) {
 		<section class="panel">
 			<h1 class="section-label">Card Search</h1>
@@ -13,21 +13,21 @@ templ SearchPage(set, num string, card *sqlcgen.Card, errMsg string) {
 			</form>
 		</section>
 		<div id="results">
-			@SearchResults(card, errMsg)
+			@SearchResults(card, decks, errMsg)
 		</div>
 	}
 }
 
-templ SearchResults(card *sqlcgen.Card, errMsg string) {
+templ SearchResults(card *sqlcgen.Card, decks []sqlcgen.ListDecksRow, errMsg string) {
 	if errMsg != "" {
 		<p class="alert alert-error">{ errMsg }</p>
 	}
 	if card != nil {
-		@CardResult(*card)
+		@CardResult(*card, decks)
 	}
 }
 
-templ CardResult(card sqlcgen.Card) {
+templ CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 	<div class="panel card-result">
 		<img class="card-img" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
 		<div class="card-meta">
@@ -42,6 +42,36 @@ templ CardResult(card sqlcgen.Card) {
 					<span class="mana-cost">{ card.ManaCost.String }</span>
 				}
 			</p>
+			<details class="add-popover">
+				<summary class="btn">Add to deck</summary>
+				<div class="add-forms">
+					if len(decks) == 0 {
+						<p class="muted">No decks yet — <a href="/decks">create one</a>.</p>
+					}
+					for _, d := range decks {
+						<form class="add-form" hx-post={ deckCardsURL(d.ID) } hx-target="find .add-status" hx-swap="innerHTML">
+							<input type="hidden" name="card_id" value={ card.ID }/>
+							<span class="add-deck-name">{ d.Name }</span>
+							<select name="zone">
+								for _, z := range zoneOrder(d.Format) {
+									<option value={ z }>{ z }</option>
+								}
+							</select>
+							<input class="qty-input" type="number" name="quantity" value="1" min="1"/>
+							<button class="btn btn-sm" type="submit">Add</button>
+							<span class="add-status"></span>
+						</form>
+					}
+				</div>
+			</details>
 		</div>
 	</div>
+}
+
+templ AddCardStatus(ok bool, msg string) {
+	if ok {
+		<span class="added-ok">&#10003; { msg }</span>
+	} else {
+		<span class="added-err">{ msg }</span>
+	}
 }

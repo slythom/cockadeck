@@ -25,7 +25,11 @@ func (s *Server) searchPage(w http.ResponseWriter, r *http.Request) {
 	if set != "" || num != "" {
 		card, errMsg = s.lookupCard(r.Context(), set, num)
 	}
-	views.SearchPage(set, num, card, errMsg).Render(r.Context(), w)
+	var decks []sqlcgen.ListDecksRow
+	if card != nil {
+		decks, _ = s.cards.ListDecks(r.Context(), userID(r))
+	}
+	views.SearchPage(set, num, card, decks, errMsg).Render(r.Context(), w)
 }
 
 func (s *Server) searchResults(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +37,11 @@ func (s *Server) searchResults(w http.ResponseWriter, r *http.Request) {
 	num := r.URL.Query().Get("num")
 	card, errMsg := s.lookupCard(r.Context(), set, num)
 	w.Header().Set("HX-Push-Url", "/search?set="+url.QueryEscape(set)+"&num="+url.QueryEscape(num))
-	views.SearchResults(card, errMsg).Render(r.Context(), w)
+	var decks []sqlcgen.ListDecksRow
+	if card != nil {
+		decks, _ = s.cards.ListDecks(r.Context(), userID(r))
+	}
+	views.SearchResults(card, decks, errMsg).Render(r.Context(), w)
 }
 
 // lookupCard returns (card, "") on success or (nil, user-facing message) on failure.

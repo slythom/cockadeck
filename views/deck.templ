@@ -1,0 +1,107 @@
+package views
+
+import (
+	"cockadeck/internal/store/sqlcgen"
+	"strconv"
+)
+
+templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters, errMsg string) {
+	@Layout(deck.Name, true) {
+		<section class="panel deck-head">
+			<div class="deck-head-top">
+				<div>
+					<h1 class="deck-title">{ deck.Name }</h1>
+					<span class="badge">{ deck.Format }</span>
+					<span class="muted">{ totalCards(rows) } cards</span>
+				</div>
+				<button class="btn-danger" hx-delete={ deckURL(deck.ID) } hx-confirm="Delete this deck?">Delete</button>
+			</div>
+			if deck.Description != "" {
+				<p class="muted">{ deck.Description }</p>
+			}
+			<details class="deck-edit">
+				<summary>Edit deck</summary>
+				<form method="post" action={ deckURL(deck.ID) } hx-post={ deckURL(deck.ID) } class="form-inline">
+					<input type="text" name="name" value={ deck.Name } required/>
+					<select name="format">
+						<option value="40-card" selected?={ deck.Format == "40-card" }>40-card</option>
+						<option value="commander" selected?={ deck.Format == "commander" }>commander</option>
+					</select>
+					<input type="text" name="description" value={ deck.Description } placeholder="Description"/>
+					<button class="btn" type="submit">Save</button>
+				</form>
+			</details>
+		</section>
+		<form id="deck-filters" class="filters" method="get" action={ deckURL(deck.ID) }
+			hx-get={ deckURL(deck.ID) } hx-target="#deck-cards" hx-swap="innerHTML"
+			hx-trigger="input delay:300ms, change" hx-push-url="true">
+			<input type="text" name="set" placeholder="Set (code or name)" value={ f.Set }/>
+			<select name="rarity">
+				<option value="">Any rarity</option>
+				for _, r := range rarities {
+					<option value={ r } selected?={ f.Rarity == r }>{ r }</option>
+				}
+			</select>
+			<input type="number" name="cmc" step="0.5" min="0" placeholder="Mana value" value={ f.CMC }/>
+		</form>
+		<div id="deck-cards">
+			@DeckCardList(deck, rows, errMsg)
+		</div>
+	}
+}
+
+templ DeckCardList(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, errMsg string) {
+	if errMsg != "" {
+		<p class="alert alert-error">{ errMsg }</p>
+	}
+	if len(rows) == 0 {
+		<p class="muted">No cards here yet — <a href="/search">search for cards</a> to add.</p>
+	}
+	for _, zone := range zoneOrder(deck.Format) {
+		if len(zoneRows(rows, zone)) > 0 {
+			<section class="zone-group">
+				<h2 class="zone-label">{ zone } <span class="muted">{ zoneTotal(rows, zone) }</span></h2>
+				for _, row := range zoneRows(rows, zone) {
+					@DeckCardRow(deck, row)
+				}
+			</section>
+		}
+	}
+}
+
+templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
+	<div class="deck-row">
+		<img class="card-thumb" src={ row.ImageUri } alt={ row.Name } loading="lazy"/>
+		<div class="deck-row-info">
+			<span class="deck-row-name">
+				{ row.Name }
+				if row.Zone == "commander" {
+					<span class="badge badge-commander">commander</span>
+				}
+			</span>
+			<span class="muted small">
+				{ row.SetName } · #{ row.CollectorNumber } · { row.Rarity }
+				if row.ManaCost.Valid {
+					· <span class="mana-cost">{ row.ManaCost.String }</span>
+				}
+			</span>
+		</div>
+		<div class="deck-row-ctl">
+			<form class="qty-ctl" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
+				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerHTML">
+				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity-1, 10) }>&minus;</button>
+				<span class="qty">{ row.Quantity }</span>
+				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity+1, 10) }>+</button>
+			</form>
+			<select class="zone-select" name="new_zone" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
+				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerHTML" hx-trigger="change">
+				for _, z := range zoneOrder(deck.Format) {
+					<option value={ z } selected?={ z == row.Zone }>{ z }</option>
+				}
+			</select>
+			<button class="btn-icon" hx-delete={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
+				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerHTML"
+				hx-confirm={ "Remove " + row.Name + "?" }>&times;</button>
+		</div>
+	</div>
+}

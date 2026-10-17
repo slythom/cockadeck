@@ -1,8 +1,35 @@
 package views
 
-templ DecksPage(displayName string) {
+import "cockadeck/internal/store/sqlcgen"
+
+templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 	@Layout("Decks", true) {
-		<h1 class="section-label">Decks</h1>
-		<p class="muted">Signed in as { displayName }. Deck management arrives in build step 3.</p>
+		<section class="panel">
+			<h1 class="section-label">Decks</h1>
+			if errMsg != "" {
+				<p class="alert alert-error">{ errMsg }</p>
+			}
+			<form method="post" action="/decks" hx-post="/decks" class="form-inline">
+				<input type="text" name="name" placeholder="Deck name" required/>
+				<select name="format">
+					<option value="40-card">40-card</option>
+					<option value="commander">commander</option>
+				</select>
+				<input type="text" name="description" placeholder="Description (optional)"/>
+				<button class="btn" type="submit">New deck</button>
+			</form>
+		</section>
+		<div class="deck-list">
+			for _, d := range decks {
+				<a class="panel deck-item" href={ deckURL(d.ID) }>
+					<span class="deck-item-name">{ d.Name }</span>
+					<span class="badge">{ d.Format }</span>
+					<span class="muted">{ cardCount(d.CardCount) } cards</span>
+				</a>
+			}
+		</div>
+		if len(decks) == 0 {
+			<p class="muted">No decks yet — create one above.</p>
+		}
 	}
 }
