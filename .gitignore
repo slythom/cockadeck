@@ -1,4 +1,5 @@
 /cockadeck
+/cockadeck-linux
 *.db
 *.db-shm
 *.db-wal

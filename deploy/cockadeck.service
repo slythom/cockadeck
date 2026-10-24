@@ -1,0 +1,23 @@
+[Unit]
+Description=Cockadeck — MTG deck builder and collection manager
+After=network.target
+
+[Service]
+Type=simple
+User=cockadeck
+Group=cockadeck
+WorkingDirectory=/var/lib/cockadeck
+EnvironmentFile=/etc/cockadeck/env
+ExecStart=/usr/local/bin/cockadeck
+Restart=on-failure
+RestartSec=5
+
+# Hardening — the only writable path is the DB directory.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/cockadeck
+
+[Install]
+WantedBy=multi-user.target

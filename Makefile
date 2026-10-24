@@ -13,5 +13,14 @@ test: generate
 dev: generate
 	COCKADECK_JWT_SECRET=dev-secret COCKADECK_ENV=dev go run ./cmd/cockadeck
 
+# Cross-compile for the VPS and ship the binary. Usage:
+#   make deploy DEPLOY_HOST=user@vps.example.com
+DEPLOY_HOST ?=
+
+deploy:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cockadeck-linux ./cmd/cockadeck
+	scp cockadeck-linux $(DEPLOY_HOST):/tmp/cockadeck
+	ssh $(DEPLOY_HOST) 'sudo install -m755 /tmp/cockadeck /usr/local/bin/cockadeck && sudo systemctl restart cockadeck'
+
 clean:
-	rm -f cockadeck cockadeck.db cockadeck.db-*
+	rm -f cockadeck cockadeck-linux cockadeck.db cockadeck.db-*

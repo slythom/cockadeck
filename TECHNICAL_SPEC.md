@@ -21,7 +21,7 @@ Cockadeck is a **single self-contained Go binary**: a server-rendered web applic
 - Card images are **hotlinked** from Scryfall's CDN — no image storage or proxying.
 
 ```
-Browser ──HTMX──▶ nginx (TLS) ──▶ cockadeck (Go)
+Browser ──HTMX──▶ caddy (TLS) ──▶ cockadeck (Go)
                                    ├─ templ → HTML / fragments
                                    ├─ sqlc → SQLite (WAL)
                                    └─ scryfall client → api.scryfall.com (rate-limited, cached in SQLite)
@@ -58,7 +58,7 @@ Thin handlers: parse input → call service → render Templ. Services hold busi
 | Logging | `log/slog` (stdlib) | JSON handler in prod |
 | Telemetry | OpenTelemetry → SigNoz | **post-MVP**; structured logs first (§11) |
 | Hosting | small VPS, Ubuntu 26.04 | systemd unit |
-| TLS | nginx reverse proxy + certbot | (decision TD7) |
+| TLS | Caddy reverse proxy | automatic ACME certs + renewal, no certbot (decision TD7) |
 
 ### Dependency list (complete for MVP)
 
@@ -418,7 +418,7 @@ Static files served via `go:embed` + `http.FileServer`, `Cache-Control: immutabl
 
 - **Build**: `templ generate && sqlc generate && go build ./cmd/cockadeck` → one binary, assets + migrations embedded.
 - **Run**: systemd unit on the VPS; `EnvironmentFile=/etc/cockadeck/env`; working dir holds `cockadeck.db`; restart `on-failure`.
-- **TLS/proxy**: nginx on 443 → `localhost:8080`; certbot (`--nginx`) for the domain cert. HTTP→HTTPS redirect. *(TD7: Caddy would remove certbot entirely — single-file config, automatic TLS — but spec follows the stated certbot choice.)*
+- **TLS/proxy**: Caddy on 443 → `127.0.0.1:8080`; ACME cert issuance and renewal are automatic once the domain's DNS points at the VPS. HTTP→HTTPS redirect included. Config: `deploy/Caddyfile`. *(TD7: flipped to Caddy 2026-10-24 — one daemon, no certbot, ~5 lines of config.)*
 - **Backup**: `sqlite3 cockadeck.db ".backup ..."` cron, or litestream later. DB file is the whole state.
 - **Deploys**: scp binary → `systemctl restart`. No CI initially; Makefile target `deploy` is enough at this scale.
 
@@ -472,7 +472,7 @@ Static files served via `go:embed` + `http.FileServer`, `Cache-Control: immutabl
 | TD4 | User-facing identity | `display_name` required at register vs derive from email | required — needed for shared-collection browser |
 | TD5 | PKs | INTEGER rowids vs UUIDs | INTEGER — SQLite-native; Scryfall IDs only for cards |
 | TD6 | Password hashing | argon2id vs bcrypt | argon2id (OWASP); bcrypt acceptable fallback |
-| TD7 | TLS | nginx+certbot vs Caddy | nginx+certbot per request |
+| TD7 | TLS | nginx+certbot vs Caddy | **Caddy — decided 2026-10-24** (automatic TLS, no certbot, single config file) |
 | TD8 | Migration runner | goose at startup vs separate CLI step | at startup, embedded FS |
 | TD9 | CSS | hand-written vs Tailwind/templui | hand-written now; revisit if it hurts |
 | TD10 | HTMX version | vendored pinned `htmx.min.js` | pin latest 2.x, commit to `static/` |

@@ -1,0 +1,10 @@
+# Cockadeck site config — append to /etc/caddy/Caddyfile (or drop in
+# /etc/caddy/conf.d/ if your distro imports it), then:
+#   systemctl reload caddy
+#
+# Replace the domain — Caddy issues and renews the TLS cert automatically
+# (ACME). Ports 80 and 443 must be reachable for the HTTP challenge.
+cockadeck.example.com {
+	reverse_proxy 127.0.0.1:8080
+	encode zstd gzip
+}

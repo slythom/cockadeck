@@ -27,7 +27,7 @@ The codebase already covers TECHNICAL_SPEC §15 build steps 1–4 — **the MVP 
 | Other printings (FR-SEARCH-07, FF) | **Not started** | — |
 | In-deck marker in results (FR-DECK-07, FF) | **Not started** | — |
 | Stats / import / OTel (Post-MVP) | Not started | deferred by design |
-| Deployment artifacts | **Not started** | no systemd unit, nginx conf, backup script; README is one line |
+| Deployment artifacts | Done (pending a host) | `deploy/` — Caddyfile, systemd unit, env example, backup script; `make deploy`; README rewritten |
 
 Note: `go` is not installed on this machine, so `make test` could not be verified — the last commits were presumably tested elsewhere.
 
@@ -65,12 +65,13 @@ Build order inside the phase:
 3. **Read-only shared view (FR-CMP-03/05)** — `GET /collections/{userID}` rendering the owner's rows through the spec's `is_shared`-in-SQL query (TECHNICAL_SPEC §5.4) with the `tradable` flag computed by the name-level `NOT EXISTS` subquery. Same filters + a tradable-status filter (FR-CMP-04). No mutation controls rendered; handler has no write endpoints.
 4. **Privacy re-check (NFR-04)** — tests: private collection returns 404/zero rows even when hitting the URL directly; cross-user writes impossible.
 
-### Phase D — Deployment (needed for "hosted on the web")
+### Phase D — Deployment (needed for "hosted on the web") — **artifacts done 2026-10-24**
 
-1. `deploy/` — systemd unit (`EnvironmentFile=/etc/cockadeck/env`, `Restart=on-failure`), nginx vhost + certbot instructions, or Caddyfile if TD7 flips (see §3 Q4).
-2. Backup: cron `sqlite3 .backup` script or litestream note.
-3. `Makefile deploy` target (build → scp → restart) per §12.
-4. README: architecture summary, dev setup (`make dev`), deploy steps, env vars table.
+1. ~~`deploy/` — systemd unit, Caddyfile, env example, backup script~~ — written.
+2. ~~Backup: `deploy/cockadeck-backup.sh` (cron `sqlite3 .backup`, 14-day retention)~~ — written.
+3. ~~`make deploy DEPLOY_HOST=...` (cross-compile → scp → restart)~~ — written.
+4. ~~README: dev setup + first-time server setup~~ — written.
+5. **Remaining:** pick the VPS + domain, run the first-time setup from `README.md`, verify TLS issuance, set up the backup cron. Needs the actual host (see §3 Q7).
 
 ### Phase E — Post-MVP (parked, order TBD)
 
@@ -92,7 +93,8 @@ SPEC §7.5 wants deck + collection targets on the same result. Options: (a) exte
 **Q3. Set-completion caching policy.** — **Decided 2026-10-24: crawl-once, trust the cache.**
 First set view crawls Scryfall (paginated), fills `cards`, and subsequent views serve purely from cache. Printings are immutable so no TTL; revisit only if staleness ever shows up.
 
-**Q4. TD7 — nginx+certbot vs Caddy.** — *Analysis requested; decision pending (see bottom of doc).*
+**Q4. TD7 — nginx+certbot vs Caddy.** — **Decided 2026-10-24: Caddy.**
+Automatic ACME cert + renewal, ~5-line config, one fewer daemon. Artifacts written: `deploy/Caddyfile`, `deploy/cockadeck.service`, `deploy/env.example`, `deploy/cockadeck-backup.sh`, `make deploy`.
 
 **Q5. TD2 — JWT vs sessions.** — **Decided 2026-10-24: keep JWT.**
 No changes required for deployment; stateless tokens stay.
