@@ -20,23 +20,27 @@ make build      # ./cockadeck binary
 Single static binary behind a Caddy reverse proxy (automatic TLS). Files live
 in `deploy/`:
 
-- `deploy/Caddyfile` — site block; set your domain, Caddy handles the cert
-- `deploy/cockadeck.service` — systemd unit (`/etc/systemd/system/`)
-- `deploy/env.example` — `COCKADECK_*` vars, goes to `/etc/cockadeck/env`
+- `deploy/bootstrap.sh` — first-time server setup (user, env, unit, cron, Caddy)
+- `deploy/Caddyfile` — site block; bootstrap appends it for your domain
+- `deploy/cockadeck.service` — systemd unit
+- `deploy/env.example` — `COCKADECK_*` vars, becomes `/etc/cockadeck/env`
 - `deploy/cockadeck-backup.sh` — daily `sqlite3 .backup` snapshot (cron)
 
-First-time server setup:
+First-time setup — point the domain's DNS at the VPS first, then:
 
 ```sh
-useradd -r -d /var/lib/cockadeck -m cockadeck
-install -m600 -o cockadeck deploy/env.example /etc/cockadeck/env   # edit JWT_SECRET
-install -m755 deploy/cockadeck-backup.sh /usr/local/bin/cockadeck-backup
-# append deploy/Caddyfile to /etc/caddy/Caddyfile with your domain
-systemctl enable --now cockadeck && systemctl reload caddy
+make deploy-bundle DEPLOY_HOST=root@vps.example.com
+ssh root@vps.example.com 'DOMAIN=cockadeck.example.com sh /tmp/cockadeck-deploy/bootstrap.sh'
 ```
+
+Bootstrap is idempotent: it installs Caddy if absent, creates the `cockadeck`
+user, writes `/etc/cockadeck/env` with a generated `COCKADECK_JWT_SECRET`,
+installs the unit + backup cron, registers the Caddy site, and starts the
+service. Caddy issues the TLS cert on first request.
 
 Ship a new release:
 
 ```sh
 make deploy DEPLOY_HOST=user@vps.example.com
 ```
+

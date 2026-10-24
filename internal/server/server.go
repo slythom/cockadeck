@@ -30,7 +30,8 @@ func New(cfg config.Config, q sqlcgen.Querier, cards *catalog.Service) http.Hand
 	public.Handle("POST /login", authLimiter.wrap(http.HandlerFunc(s.login)))
 	public.Handle("GET /register", authLimiter.wrap(http.HandlerFunc(s.registerPage)))
 	public.Handle("POST /register", authLimiter.wrap(http.HandlerFunc(s.register)))
-	public.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(static.FS)))
+	public.Handle("GET /static/", cacheControl(
+		http.StripPrefix("/static/", http.FileServerFS(static.FS)), time.Hour))
 
 	authed.HandleFunc("GET /{$}", s.home)
 	authed.HandleFunc("GET /search", s.searchPage)

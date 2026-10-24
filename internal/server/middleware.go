@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -49,6 +50,17 @@ func requestLog(next http.Handler) http.Handler {
 			"duration", time.Since(start).String(),
 			"user_id", uid,
 		)
+	})
+}
+
+// cacheControl sets a public max-age on responses — used for vendored static
+// assets, which aren't fingerprinted, so keep the window short enough that
+// a deploy doesn't leave stale CSS/JS for long.
+func cacheControl(next http.Handler, maxAge time.Duration) http.Handler {
+	v := "public, max-age=" + strconv.FormatInt(int64(maxAge.Seconds()), 10)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", v)
+		next.ServeHTTP(w, r)
 	})
 }
 

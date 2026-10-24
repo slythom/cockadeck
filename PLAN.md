@@ -71,7 +71,9 @@ Build order inside the phase:
 2. ~~Backup: `deploy/cockadeck-backup.sh` (cron `sqlite3 .backup`, 14-day retention)~~ — written.
 3. ~~`make deploy DEPLOY_HOST=...` (cross-compile → scp → restart)~~ — written.
 4. ~~README: dev setup + first-time server setup~~ — written.
-5. **Remaining:** pick the VPS + domain, run the first-time setup from `README.md`, verify TLS issuance, set up the backup cron. Needs the actual host (see §3 Q7).
+5. ~~App hardening~~ — graceful shutdown on SIGTERM (`main.go`), `Cache-Control` on `/static/`, favicon. Done.
+6. ~~First-time setup automation~~ — `deploy/bootstrap.sh` (idempotent: installs Caddy, user, env+generated secret, unit, backup cron, site; starts everything). Done.
+7. **Remaining:** pick the VPS + domain, then `make deploy-bundle` + `bootstrap.sh` — the only step left needs the actual host (see §3 Q7).
 
 ### Phase E — Post-MVP (parked, order TBD)
 
