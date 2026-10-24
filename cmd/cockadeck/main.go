@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"cockadeck/internal/catalog"
 	"cockadeck/internal/config"
@@ -46,5 +47,10 @@ func run() error {
 	svc := catalog.New(q, db, scryfall.NewClient(cfg.ScryfallURL))
 	srv := server.New(cfg, q, svc)
 	slog.Info("listening", "addr", cfg.Addr, "env", cfg.Env)
-	return http.ListenAndServe(cfg.Addr, srv)
+	httpSrv := &http.Server{
+		Addr:              cfg.Addr,
+		Handler:           srv,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	return httpSrv.ListenAndServe()
 }

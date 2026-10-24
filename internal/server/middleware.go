@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -110,14 +111,28 @@ func (l *ipRateLimiter) allow(ip string) bool {
 
 func (l *ipRateLimiter) wrap(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			ip = r.RemoteAddr
-		}
-		if !l.allow(ip) {
+		if !l.allow(clientIP(r)) {
 			http.Error(w, "too many requests", http.StatusTooManyRequests)
 			return
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// clientIP prefers the last X-Forwarded-For entry — the address the reverse
+// proxy actually saw — so per-IP limits aren't keyed on the proxy itself.
+// Direct connections (dev, no proxy) fall back to RemoteAddr.
+func clientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		if i := strings.LastIndexByte(xff, ','); i >= 0 {
+			xff = xff[i+1:]
+		}
+		if ip := strings.TrimSpace(xff); ip != "" {
+			return ip
+		}
+	}
+	if ip, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		return ip
+	}
+	return r.RemoteAddr
 }
