@@ -71,6 +71,43 @@ func TestCardFacesFallback(t *testing.T) {
 	}
 }
 
+func TestSearchByName(t *testing.T) {
+	var gotPath, gotQuery string
+	c := fixture(t, func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		gotQuery = r.URL.Query().Get("q")
+		w.Header().Set("Content-Type", "application/json")
+		io.WriteString(w, `{
+			"object": "list", "total_cards": 2, "has_more": false,
+			"data": [
+				{"id":"a","oracle_id":"o-a","name":"Lightning Bolt","set":"m11",
+				 "set_name":"Core Set 2011","collector_number":"146","rarity":"common",
+				 "image_uris":{"normal":"https://img/a.jpg"}},
+				{"id":"b","oracle_id":"o-b","name":"Lightning Bolt","set":"otj",
+				 "set_name":"Outlaws of Thunder Junction","collector_number":"10","rarity":"rare",
+				 "image_uris":{"normal":"https://img/b.jpg"}}
+			]
+		}`)
+	})
+
+	res, err := c.SearchByName(context.Background(), "lightning bolt", "M11")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotPath != "/cards/search" {
+		t.Fatalf("path = %q", gotPath)
+	}
+	if gotQuery != "lightning bolt set:m11" {
+		t.Fatalf("q = %q, set constraint missing/not lowercased", gotQuery)
+	}
+	if res.TotalCards != 2 || len(res.Cards) != 2 || res.HasMore {
+		t.Fatalf("result = %+v (cards %d)", res, len(res.Cards))
+	}
+	if res.Cards[0].ID != "a" || len(res.Cards[0].Raw) == 0 {
+		t.Fatalf("card[0] missing id or raw payload: %+v", res.Cards[0])
+	}
+}
+
 func TestErrorMapping(t *testing.T) {
 	cases := []struct {
 		status int

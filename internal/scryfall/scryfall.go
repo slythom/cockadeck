@@ -94,6 +94,48 @@ func (c *Client) CardBySetNumber(ctx context.Context, set, number string) (*Card
 	return &card, nil
 }
 
+// SearchResult is the first page of a /cards/search response.
+type SearchResult struct {
+	TotalCards int
+	HasMore    bool
+	Cards      []*Card
+}
+
+type cardList struct {
+	TotalCards int               `json:"total_cards"`
+	HasMore    bool              `json:"has_more"`
+	Data       []json.RawMessage `json:"data"`
+}
+
+// SearchByName runs a fuzzy name search via GET /cards/search. An optional
+// set code narrows the query (q = "<name> set:<code>"). Only the first page
+// is fetched; HasMore reports whether Scryfall had further results.
+func (c *Client) SearchByName(ctx context.Context, name, set string) (*SearchResult, error) {
+	q := name
+	if set != "" {
+		q += " set:" + strings.ToLower(set)
+	}
+	body, err := c.get(ctx, "/cards/search?q="+url.QueryEscape(q))
+	if err != nil {
+		return nil, err
+	}
+	var l cardList
+	if err := json.Unmarshal(body, &l); err != nil {
+		return nil, fmt.Errorf("%w: malformed response: %v", ErrUnavailable, err)
+	}
+	res := &SearchResult{TotalCards: l.TotalCards, HasMore: l.HasMore}
+	for _, raw := range l.Data {
+		var card Card
+		if err := json.Unmarshal(raw, &card); err != nil {
+			continue
+		}
+		card.Raw = raw
+		card.fillFromFaces()
+		res.Cards = append(res.Cards, &card)
+	}
+	return res, nil
+}
+
 func (c *Client) get(ctx context.Context, path string) ([]byte, error) {
 	if err := c.limiter.Wait(ctx); err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrUnavailable, err)

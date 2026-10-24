@@ -89,14 +89,27 @@ const fixtureCardJSON = `{
 }`
 
 // scryfallFixture serves canned responses and counts requests.
-func scryfallFixture(t *testing.T) (*httptest.Server, *int) {
+// lastQuery reports the ?q= sent to the last /cards/search call.
+func scryfallFixture(t *testing.T) (*httptest.Server, *int, *string) {
 	t.Helper()
 	var hits int
+	var lastQuery string
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /cards/otj/10", func(w http.ResponseWriter, r *http.Request) {
 		hits++
 		w.Header().Set("Content-Type", "application/json")
 		io.WriteString(w, fixtureCardJSON)
+	})
+	mux.HandleFunc("GET /cards/search", func(w http.ResponseWriter, r *http.Request) {
+		hits++
+		lastQuery = r.URL.Query().Get("q")
+		w.Header().Set("Content-Type", "application/json")
+		if strings.Contains(lastQuery, "zzzz") {
+			w.WriteHeader(http.StatusNotFound)
+			io.WriteString(w, `{"object":"error","code":"not_found","details":"no cards found"}`)
+			return
+		}
+		io.WriteString(w, `{"object":"list","total_cards":1,"has_more":false,"data":[`+fixtureCardJSON+`]}`)
 	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		hits++
@@ -106,7 +119,7 @@ func scryfallFixture(t *testing.T) (*httptest.Server, *int) {
 	})
 	srv := httptest.NewServer(mux)
 	t.Cleanup(srv.Close)
-	return srv, &hits
+	return srv, &hits, &lastQuery
 }
 
 func authedGet(t *testing.T, srv *httptest.Server, client *http.Client, cookie *http.Cookie, path string) *http.Response {
@@ -124,7 +137,7 @@ func authedGet(t *testing.T, srv *httptest.Server, client *http.Client, cookie *
 }
 
 func TestSearchFlow(t *testing.T) {
-	fixture, hits := scryfallFixture(t)
+	fixture, hits, lastQuery := scryfallFixture(t)
 	srv := httptest.NewServer(mustServer(newTestServer(t, fixture.URL)))
 	defer srv.Close()
 	client := noRedirectClient()
@@ -162,6 +175,28 @@ func TestSearchFlow(t *testing.T) {
 	// Invalid input.
 	if _, body, _ = get("/search/results?set=&num="); !strings.Contains(body, "Enter a set code") {
 		t.Fatalf("invalid-input message missing: %s", body)
+	}
+
+	// Name search → list fragment, result served from the API fill.
+	code, body, hdr = get("/search/results?name=prospector")
+	if code != http.StatusOK || !strings.Contains(body, "Prospector") || !strings.Contains(body, "1 match") {
+		t.Fatalf("name search: status %d, body missing card name/count", code)
+	}
+	if got := hdr.Get("HX-Push-Url"); got != "/search?name=prospector" {
+		t.Fatalf("HX-Push-Url = %q", got)
+	}
+	if *lastQuery != "prospector" {
+		t.Fatalf("scryfall q = %q", *lastQuery)
+	}
+
+	// Name + set narrows the Scryfall query.
+	if _, _, _ = get("/search/results?name=prospector&set=otj"); *lastQuery != "prospector set:otj" {
+		t.Fatalf("scryfall q = %q, want set constraint", *lastQuery)
+	}
+
+	// Name search 404 → friendly no-match message.
+	if _, body, _ = get("/search/results?name=zzzz"); !strings.Contains(body, "No cards match") || !strings.Contains(body, "zzzz") {
+		t.Fatalf("name not-found message missing: %s", body)
 	}
 
 	// Full page render with results (shareable URL).

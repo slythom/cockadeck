@@ -1,29 +1,46 @@
 package views
 
-import "cockadeck/internal/store/sqlcgen"
+import (
+	"cockadeck/internal/store/sqlcgen"
+	"fmt"
+)
 
-templ SearchPage(set, num string, card *sqlcgen.Card, decks []sqlcgen.ListDecksRow, errMsg string) {
+templ SearchPage(set, num, name string, card *sqlcgen.Card, cards []sqlcgen.Card, total int, decks []sqlcgen.ListDecksRow, errMsg string) {
 	@Layout("Search", true) {
 		<section class="panel">
 			<h1 class="section-label">Card Search</h1>
 			<form action="/search" method="get" hx-get="/search/results" hx-target="#results" class="form-inline">
-				<input type="text" name="set" placeholder="Set code" value={ set } required autocomplete="off"/>
-				<input type="text" name="num" placeholder="Collector #" value={ num } required autocomplete="off"/>
+				<input type="text" name="name" placeholder="Card name" value={ name } autocomplete="off"
+					hx-get="/search/results" hx-trigger="keyup changed delay:400ms"
+					hx-target="#results" hx-include="closest form"/>
+				<input type="text" name="set" placeholder="Set code" value={ set } autocomplete="off"/>
+				<input type="text" name="num" placeholder="Collector #" value={ num } autocomplete="off"/>
 				<button class="btn" type="submit">Search</button>
 			</form>
+			<p class="hint">Search by card name (optionally narrowed by set), or by set code + collector number.</p>
 		</section>
 		<div id="results">
-			@SearchResults(card, decks, errMsg)
+			@SearchResults(card, cards, total, decks, errMsg)
 		</div>
 	}
 }
 
-templ SearchResults(card *sqlcgen.Card, decks []sqlcgen.ListDecksRow, errMsg string) {
+templ SearchResults(card *sqlcgen.Card, cards []sqlcgen.Card, total int, decks []sqlcgen.ListDecksRow, errMsg string) {
 	if errMsg != "" {
 		<p class="alert alert-error">{ errMsg }</p>
 	}
 	if card != nil {
 		@CardResult(*card, decks)
+	}
+	if len(cards) > 0 {
+		if total > len(cards) {
+			<p class="muted">Showing { fmt.Sprint(len(cards)) } of { fmt.Sprint(total) } matches — refine your search to narrow it down.</p>
+		} else {
+			<p class="muted">{ fmt.Sprint(len(cards)) } match(es)</p>
+		}
+		for _, c := range cards {
+			@CardListItem(c, decks)
+		}
 	}
 }
 
@@ -42,30 +59,52 @@ templ CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 					<span class="mana-cost">{ card.ManaCost.String }</span>
 				}
 			</p>
-			<details class="add-popover">
-				<summary class="btn">Add to deck</summary>
-				<div class="add-forms">
-					if len(decks) == 0 {
-						<p class="muted">No decks yet — <a href="/decks">create one</a>.</p>
-					}
-					for _, d := range decks {
-						<form class="add-form" hx-post={ deckCardsURL(d.ID) } hx-target="find .add-status" hx-swap="innerHTML">
-							<input type="hidden" name="card_id" value={ card.ID }/>
-							<span class="add-deck-name">{ d.Name }</span>
-							<select name="zone">
-								for _, z := range zoneOrder(d.Format) {
-									<option value={ z }>{ z }</option>
-								}
-							</select>
-							<input class="qty-input" type="number" name="quantity" value="1" min="1"/>
-							<button class="btn btn-sm" type="submit">Add</button>
-							<span class="add-status"></span>
-						</form>
-					}
-				</div>
-			</details>
+			@AddToDeck(card, decks)
 		</div>
 	</div>
+}
+
+templ CardListItem(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
+	<div class="deck-row">
+		<img class="card-thumb" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
+		<div class="deck-row-info">
+			<span class="deck-row-name">{ card.Name }</span>
+			<span class="muted small">
+				{ card.SetName } · #{ card.CollectorNumber } · <span class="badge">{ card.Rarity }</span>
+				if card.ManaCost.Valid {
+					· <span class="mana-cost">{ card.ManaCost.String }</span>
+				}
+			</span>
+		</div>
+		<div class="deck-row-ctl">
+			@AddToDeck(card, decks)
+		</div>
+	</div>
+}
+
+templ AddToDeck(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
+	<details class="add-popover">
+		<summary class="btn">Add to deck</summary>
+		<div class="add-forms">
+			if len(decks) == 0 {
+				<p class="muted">No decks yet — <a href="/decks">create one</a>.</p>
+			}
+			for _, d := range decks {
+				<form class="add-form" hx-post={ deckCardsURL(d.ID) } hx-target="find .add-status" hx-swap="innerHTML">
+					<input type="hidden" name="card_id" value={ card.ID }/>
+					<span class="add-deck-name">{ d.Name }</span>
+					<select name="zone">
+						for _, z := range zoneOrder(d.Format) {
+							<option value={ z }>{ z }</option>
+						}
+					</select>
+					<input class="qty-input" type="number" name="quantity" value="1" min="1"/>
+					<button class="btn btn-sm" type="submit">Add</button>
+					<span class="add-status"></span>
+				</form>
+			}
+		</div>
+	</details>
 }
 
 templ AddCardStatus(ok bool, msg string) {

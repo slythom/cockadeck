@@ -89,7 +89,7 @@ Requirements use IDs (`FR-<area>-<n>`) for traceability.
 | FR-SEARCH-03 | Non-ASCII / special collector numbers (e.g. `361★`, `5a`) are supported. | MVP |
 | FR-SEARCH-04 | Clear, distinct messages for: card not found, invalid input, Scryfall unavailable. | MVP |
 | FR-SEARCH-05 | Each result offers "add" actions targeting a deck and/or a collection (see 5.3, 5.4). | MVP |
-| FR-SEARCH-06 | A user can search by card name (Scryfall `/cards/search`), returning a list of matching cards. | FF |
+| FR-SEARCH-06 | A user can search by card name (Scryfall `/cards/search`), returning a list of matching cards. | MVP |
 | FR-SEARCH-07 | From a result, a user can see other printings of the same card. | FF |
 
 ### 5.3 Decks (MVP)

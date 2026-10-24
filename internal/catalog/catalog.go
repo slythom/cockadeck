@@ -52,6 +52,33 @@ func (s *Service) CardBySetNumber(ctx context.Context, set, number string) (sqlc
 		return sqlcgen.Card{}, err
 	}
 	slog.Debug("card lookup", "set", set, "number", number, "cache_hit", false)
+	return s.cacheCard(ctx, sc)
+}
+
+// CardsByName runs a Scryfall name search and fills the cards cache with
+// every returned printing, so results can be added to decks/collections
+// without another API call. Returns the cached rows and Scryfall's total.
+func (s *Service) CardsByName(ctx context.Context, name, set string) ([]sqlcgen.Card, int, error) {
+	name = strings.TrimSpace(name)
+	set = strings.ToLower(strings.TrimSpace(set))
+
+	res, err := s.sf.SearchByName(ctx, name, set)
+	if err != nil {
+		return nil, 0, err
+	}
+	cards := make([]sqlcgen.Card, 0, len(res.Cards))
+	for _, sc := range res.Cards {
+		c, err := s.cacheCard(ctx, sc)
+		if err != nil {
+			return nil, 0, err
+		}
+		cards = append(cards, c)
+	}
+	return cards, res.TotalCards, nil
+}
+
+// cacheCard upserts a Scryfall payload into the cards table.
+func (s *Service) cacheCard(ctx context.Context, sc *scryfall.Card) (sqlcgen.Card, error) {
 	return s.q.UpsertCard(ctx, sqlcgen.UpsertCardParams{
 		ID:              sc.ID,
 		OracleID:        sc.OracleID,
