@@ -23,6 +23,7 @@ deploy:
 	ssh $(DEPLOY_HOST) 'sudo install -m755 /tmp/cockadeck /usr/local/bin/cockadeck && sudo systemctl restart cockadeck'
 
 # First-time provisioning: ship the binary + deploy/ files, then on the host:
+#   make deploy-bundle DEPLOY_HOST=root@<vps>
 #   ssh $(DEPLOY_HOST) 'DOMAIN=cockadeck.example.com sh /tmp/cockadeck-deploy/bootstrap.sh'
 deploy-bundle:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cockadeck-linux ./cmd/cockadeck
