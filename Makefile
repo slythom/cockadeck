@@ -16,9 +16,11 @@ dev: generate
 # Cross-compile for the VPS and ship the binary. Usage:
 #   make deploy DEPLOY_HOST=user@vps.example.com
 DEPLOY_HOST ?=
+# amd64 for x86 shapes (E2.1.Micro), arm64 for Ampere (A1.Flex).
+GOARCH ?= amd64
 
 deploy:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cockadeck-linux ./cmd/cockadeck
+	CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) go build -o cockadeck-linux ./cmd/cockadeck
 	scp cockadeck-linux $(DEPLOY_HOST):/tmp/cockadeck
 	ssh $(DEPLOY_HOST) 'sudo install -m755 /tmp/cockadeck /usr/local/bin/cockadeck && sudo systemctl restart cockadeck'
 
@@ -26,7 +28,7 @@ deploy:
 #   make deploy-bundle DEPLOY_HOST=root@<vps>
 #   ssh $(DEPLOY_HOST) 'DOMAIN=cockadeck.example.com sh /tmp/cockadeck-deploy/bootstrap.sh'
 deploy-bundle:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cockadeck-linux ./cmd/cockadeck
+	CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) go build -o cockadeck-linux ./cmd/cockadeck
 	ssh $(DEPLOY_HOST) 'rm -rf /tmp/cockadeck-deploy && mkdir -p /tmp/cockadeck-deploy'
 	scp cockadeck-linux $(DEPLOY_HOST):/tmp/cockadeck
 	scp deploy/* $(DEPLOY_HOST):/tmp/cockadeck-deploy/
