@@ -101,7 +101,12 @@ templ AddToDeck(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 							<option value={ z }>{ z }</option>
 						}
 					</select>
-					<input class="qty-input" type="number" name="quantity" value="1" min="1"/>
+					<div class="num-input num-sm">
+						<input type="number" name="quantity" value="1" min="1"/>
+						<button type="button" class="num-btn" data-step="-1" aria-label="Decrease">&minus;</button>
+						<span class="num-sep" aria-hidden="true"></span>
+						<button type="button" class="num-btn" data-step="1" aria-label="Increase">+</button>
+					</div>
 					<button class="btn btn-sm" type="submit">Add</button>
 					<span class="add-status"></span>
 				</form>

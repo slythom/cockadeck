@@ -634,7 +634,7 @@ func AddToDeck(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) templ.Component 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select> <input class=\"qty-input\" type=\"number\" name=\"quantity\" value=\"1\" min=\"1\"> <button class=\"btn btn-sm\" type=\"submit\">Add</button> <span class=\"add-status\"></span></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</select><div class=\"num-input num-sm\"><input type=\"number\" name=\"quantity\" value=\"1\" min=\"1\"> <button type=\"button\" class=\"num-btn\" data-step=\"-1\" aria-label=\"Decrease\">&minus;</button> <span class=\"num-sep\" aria-hidden=\"true\"></span> <button type=\"button\" class=\"num-btn\" data-step=\"1\" aria-label=\"Increase\">+</button></div><button class=\"btn btn-sm\" type=\"submit\">Add</button> <span class=\"add-status\"></span></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -676,7 +676,7 @@ func AddCardStatus(ok bool, msg string) templ.Component {
 			var templ_7745c5c3_Var36 string
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 115, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 120, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
@@ -694,7 +694,7 @@ func AddCardStatus(ok bool, msg string) templ.Component {
 			var templ_7745c5c3_Var37 string
 			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(msg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 117, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/search.templ`, Line: 122, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 			if templ_7745c5c3_Err != nil {
