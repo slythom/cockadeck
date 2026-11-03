@@ -163,6 +163,55 @@ func TestDeckZoneRule(t *testing.T) {
 	}
 }
 
+func TestDeckPageHTMXFragment(t *testing.T) {
+	h, q := newTestServer(t, "http://127.0.0.1:1")
+	srv := httptest.NewServer(h)
+	defer srv.Close()
+	client := noRedirectClient()
+	cookie := registerAndCookie(t, srv, client)
+
+	resp := authedForm(t, srv, client, cookie, http.MethodPost, "/decks", url.Values{
+		"name": {"Frag"}, "format": {"40-card"},
+	})
+	deckPath := resp.Header.Get("Location")
+	resp.Body.Close()
+
+	seedCard(t, q, "card-1", "Bolt")
+	resp = authedForm(t, srv, client, cookie, http.MethodPost, deckPath+"/cards", url.Values{
+		"card_id": {"card-1"}, "zone": {"main"}, "quantity": {"1"},
+	})
+	resp.Body.Close()
+
+	// htmx request targeting #deck-cards gets only the list fragment.
+	req, err := http.NewRequest(http.MethodGet, srv.URL+deckPath, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.AddCookie(cookie)
+	req.Header.Set("HX-Request", "true")
+	req.Header.Set("HX-Target", "div#deck-cards")
+	resp, err = client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b := body(t, resp)
+	if !strings.Contains(b, "Bolt") {
+		t.Fatalf("fragment missing card row: %.200s", b)
+	}
+	for _, frag := range []string{`class="topbar"`, "deck-head", `id="deck-filters"`, `id="deck-cards"`} {
+		if strings.Contains(b, frag) {
+			t.Fatalf("fragment contains full-page markup %q", frag)
+		}
+	}
+
+	// Plain GET still gets the full page.
+	resp = authedGet(t, srv, client, cookie, deckPath)
+	b = body(t, resp)
+	if !strings.Contains(b, `class="topbar"`) || !strings.Contains(b, `id="deck-cards"`) {
+		t.Fatal("full page missing chrome")
+	}
+}
+
 func TestDeckOwnership(t *testing.T) {
 	h, _ := newTestServer(t, "http://127.0.0.1:1")
 	srv := httptest.NewServer(h)

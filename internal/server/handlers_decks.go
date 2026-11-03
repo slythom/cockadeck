@@ -105,6 +105,10 @@ func (s *Server) deckPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	if isHTMX(r) && strings.HasSuffix(r.Header.Get("HX-Target"), "#deck-cards") {
+		views.DeckCardList(deck, rows, "").Render(r.Context(), w)
+		return
+	}
 	views.DeckPage(deck, rows, vf, "").Render(r.Context(), w)
 }
 
