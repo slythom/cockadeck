@@ -164,7 +164,7 @@ input:focus {
 	font: inherit;
 	font-weight: 600;
 	cursor: pointer;
-	transition: filter 0.12s ease-out;
+	transition: filter 0.12s ease-out, transform 0.12s ease-out;
 }
 
 .btn:hover {
@@ -398,6 +398,11 @@ input:focus {
 	background: rgba(45, 212, 191, 0.12);
 }
 
+.btn:active,
+.btn-danger:active,
+.btn-icon:active,
+.dropdown-btn:active,
+.dropdown-item:active,
 .num-btn:active,
 .qty-ctl button:active {
 	transform: scale(0.96);
@@ -429,7 +434,7 @@ input:focus {
 	font: inherit;
 	font-size: 0.85rem;
 	cursor: pointer;
-	transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+	transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out, transform 0.12s ease-out;
 }
 
 .dropdown-btn:hover,
@@ -491,7 +496,7 @@ input:focus {
 	text-align: left;
 	white-space: nowrap;
 	cursor: pointer;
-	transition: background-color 0.12s ease-out;
+	transition: background-color 0.12s ease-out, transform 0.12s ease-out;
 }
 
 .dropdown-item:hover {
@@ -621,7 +626,7 @@ select {
 	font-size: 1.1rem;
 	cursor: pointer;
 	padding: 0;
-	transition: color 0.12s ease-out, background-color 0.12s ease-out;
+	transition: color 0.12s ease-out, background-color 0.12s ease-out, transform 0.12s ease-out;
 }
 
 .btn-icon:hover {
@@ -641,7 +646,7 @@ select {
 	padding: 0.4rem 0.9rem;
 	font: inherit;
 	cursor: pointer;
-	transition: background-color 0.12s ease-out;
+	transition: background-color 0.12s ease-out, transform 0.12s ease-out;
 }
 
 .btn-danger:hover {
