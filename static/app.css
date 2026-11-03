@@ -219,6 +219,7 @@ input:focus {
 	width: 14rem;
 	max-width: 40vw;
 	border-radius: 4.75% / 3.4%;
+	box-shadow: 0 0 0 1px oklch(1 0 0 / 0.1);
 	align-self: flex-start;
 }
 
@@ -554,6 +555,7 @@ input:focus {
 .card-thumb {
 	width: 3rem;
 	border-radius: 4.75% / 3.4%;
+	box-shadow: 0 0 0 1px oklch(1 0 0 / 0.1);
 }
 
 .card-preview {
