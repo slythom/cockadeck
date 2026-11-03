@@ -243,6 +243,22 @@ input:focus {
 	letter-spacing: 0.15em;
 }
 
+.rarity-rare {
+	color: #d4af37;
+}
+
+.rarity-mythic {
+	color: #e06629;
+}
+
+.badge.rarity-rare {
+	border-color: #d4af37;
+}
+
+.badge.rarity-mythic {
+	border-color: #e06629;
+}
+
 .dim {
 	opacity: 0.5;
 }
