@@ -5,7 +5,17 @@ import (
 	"strconv"
 
 	"cockadeck/internal/store/sqlcgen"
+
+	"github.com/a-h/templ"
 )
+
+// cardListSwap is the shared contract for deck-row controls: submit the
+// current filters and morph the re-rendered card list back into place.
+var cardListSwap = templ.Attributes{
+	"hx-include": "#deck-filters",
+	"hx-target":  "#deck-cards",
+	"hx-swap":    "innerMorph",
+}
 
 type DeckFilters struct {
 	Set    string
@@ -61,14 +71,4 @@ func totalCards(rows []sqlcgen.ListDeckCardsRow) int64 {
 		n += r.Quantity
 	}
 	return n
-}
-
-func cardCount(v any) int64 {
-	switch n := v.(type) {
-	case int64:
-		return n
-	case float64:
-		return int64(n)
-	}
-	return 0
 }

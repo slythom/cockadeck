@@ -24,7 +24,7 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 			}
 			<details class="deck-edit">
 				<summary>Edit deck</summary>
-				<form method="post" action={ deckURL(deck.ID) } hx-post={ deckURL(deck.ID) } class="form-inline">
+				<form method="post" action={ deckURL(deck.ID) } class="form-inline">
 					<input type="text" name="name" value={ deck.Name } required/>
 					<select name="format">
 						<option value="40-card" selected?={ deck.Format == "40-card" }>40-card</option>
@@ -63,7 +63,6 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 			<div class="num-input">
 				<input type="number" name="cmc" step="0.5" min="0" placeholder="Cost" value={ f.CMC }/>
 				<button type="button" class="num-btn" data-step="-1" aria-label="Decrease">&minus;</button>
-				<span class="num-sep" aria-hidden="true"></span>
 				<button type="button" class="num-btn" data-step="1" aria-label="Increase">+</button>
 			</div>
 		</form>
@@ -92,12 +91,18 @@ templ DeckCardList(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, errMsg st
 	}
 }
 
-templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
+templ CardRow(imgUri, name string) {
 	<div class="deck-row">
 		<div class="card-thumb-wrap">
-			<img class="card-thumb" src={ row.ImageUri } alt={ row.Name } loading="lazy"/>
-			<img class="card-preview" src={ row.ImageUri } alt="" loading="lazy" aria-hidden="true"/>
+			<img class="card-thumb" src={ imgUri } alt={ name } loading="lazy"/>
+			<img class="card-preview" src={ imgUri } alt="" loading="lazy" aria-hidden="true"/>
 		</div>
+		{ children... }
+	</div>
+}
+
+templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
+	@CardRow(row.ImageUri, row.Name) {
 		<div class="deck-row-info">
 			<span class="deck-row-name">
 				{ row.Name }
@@ -113,22 +118,18 @@ templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
 			</span>
 		</div>
 		<div class="deck-row-ctl">
-			<form class="qty-ctl" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
-				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerMorph">
+			<form class="qty-ctl" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) } { cardListSwap... }>
 				<span class="qty">{ row.Quantity }</span>
 				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity-1, 10) }>&minus;</button>
-				<span class="num-sep" aria-hidden="true"></span>
 				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity+1, 10) }>+</button>
 			</form>
-			<select class="zone-select" name="new_zone" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
-				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerMorph" hx-trigger="change">
+			<select class="zone-select" name="new_zone" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) } { cardListSwap... }>
 				for _, z := range zoneOrder(deck.Format) {
 					<option value={ z } selected?={ z == row.Zone }>{ z }</option>
 				}
 			</select>
-			<button class="btn-icon" hx-delete={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
-				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerMorph"
+			<button class="btn-icon" hx-delete={ deckCardRowURL(deck.ID, row.CardID, row.Zone) } { cardListSwap... }
 				hx-confirm={ "Remove " + row.Name + "?" }>&times;</button>
 		</div>
-	</div>
+	}
 }

@@ -9,7 +9,7 @@ templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 			if errMsg != "" {
 				<p class="alert alert-error">{ errMsg }</p>
 			}
-			<form method="post" action="/decks" hx-post="/decks" class="form-inline">
+			<form method="post" action="/decks" class="form-inline">
 				<input type="text" name="name" placeholder="Deck name" required/>
 				<select name="format">
 					<option value="40-card">40-card</option>
@@ -24,7 +24,7 @@ templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 				<a class="panel deck-item" href={ deckURL(d.ID) }>
 					<span class="deck-item-name">{ d.Name }</span>
 					<span class="badge">{ d.Format }</span>
-					<span class="muted">{ cardCount(d.CardCount) } cards</span>
+					<span class="muted">{ d.CardCount } cards</span>
 				</a>
 			}
 		</div>

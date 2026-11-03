@@ -143,24 +143,34 @@ func TestSearchFlow(t *testing.T) {
 	client := noRedirectClient()
 	cookie := registerAndCookie(t, srv, client)
 
-	get := func(path string) (int, string, http.Header) {
-		resp := authedGet(t, srv, client, cookie, path)
+	// getHTMX fetches the #results fragment the way htmx does.
+	getHTMX := func(path string) (int, string) {
+		req, err := http.NewRequest(http.MethodGet, srv.URL+path, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.AddCookie(cookie)
+		req.Header.Set("HX-Request", "true")
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
 		defer resp.Body.Close()
 		body, _ := io.ReadAll(resp.Body)
-		return resp.StatusCode, string(body), resp.Header
+		return resp.StatusCode, string(body)
 	}
 
 	// Cache miss → hits Scryfall, renders card.
-	code, body, hdr := get("/search/results?set=otj&num=10")
+	code, body := getHTMX("/search?set=otj&num=10")
 	if code != http.StatusOK || !strings.Contains(body, "Prospector") {
 		t.Fatalf("search hit: status %d, body missing card name", code)
 	}
-	if got := hdr.Get("HX-Push-Url"); got != "/search?set=otj&num=10" {
-		t.Fatalf("HX-Push-Url = %q", got)
+	if strings.Contains(body, "<!DOCTYPE") {
+		t.Fatal("htmx request rendered the full page, want a fragment")
 	}
 
 	// Cache hit → no second API call.
-	if _, body, _ = get("/search/results?set=otj&num=10"); !strings.Contains(body, "Prospector") {
+	if _, body = getHTMX("/search?set=otj&num=10"); !strings.Contains(body, "Prospector") {
 		t.Fatal("cached lookup missing card")
 	}
 	if *hits != 1 {
@@ -168,40 +178,39 @@ func TestSearchFlow(t *testing.T) {
 	}
 
 	// Not found.
-	if _, body, _ = get("/search/results?set=otj&num=999"); !strings.Contains(body, "No card found for OTJ #999") {
+	if _, body = getHTMX("/search?set=otj&num=999"); !strings.Contains(body, "No card found for OTJ #999") {
 		t.Fatalf("not-found message missing: %s", body)
 	}
 
 	// Invalid input.
-	if _, body, _ = get("/search/results?set=&num="); !strings.Contains(body, "Enter a set code") {
+	if _, body = getHTMX("/search?set=&num="); !strings.Contains(body, "Enter a set code") {
 		t.Fatalf("invalid-input message missing: %s", body)
 	}
 
 	// Name search → list fragment, result served from the API fill.
-	code, body, hdr = get("/search/results?name=prospector")
+	code, body = getHTMX("/search?name=prospector")
 	if code != http.StatusOK || !strings.Contains(body, "Prospector") || !strings.Contains(body, "1 match") {
 		t.Fatalf("name search: status %d, body missing card name/count", code)
-	}
-	if got := hdr.Get("HX-Push-Url"); got != "/search?name=prospector" {
-		t.Fatalf("HX-Push-Url = %q", got)
 	}
 	if *lastQuery != "prospector" {
 		t.Fatalf("scryfall q = %q", *lastQuery)
 	}
 
 	// Name + set narrows the Scryfall query.
-	if _, _, _ = get("/search/results?name=prospector&set=otj"); *lastQuery != "prospector set:otj" {
+	if _, _ = getHTMX("/search?name=prospector&set=otj"); *lastQuery != "prospector set:otj" {
 		t.Fatalf("scryfall q = %q, want set constraint", *lastQuery)
 	}
 
 	// Name search 404 → friendly no-match message.
-	if _, body, _ = get("/search/results?name=zzzz"); !strings.Contains(body, "No cards match") || !strings.Contains(body, "zzzz") {
+	if _, body = getHTMX("/search?name=zzzz"); !strings.Contains(body, "No cards match") || !strings.Contains(body, "zzzz") {
 		t.Fatalf("name not-found message missing: %s", body)
 	}
 
 	// Full page render with results (shareable URL).
-	code, body, _ = get("/search?set=otj&num=10")
-	if code != http.StatusOK || !strings.Contains(body, "Prospector") || !strings.Contains(body, "Card Search") {
+	resp := authedGet(t, srv, client, cookie, "/search?set=otj&num=10")
+	page, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK || !strings.Contains(string(page), "Prospector") || !strings.Contains(string(page), "Card Search") {
 		t.Fatal("full search page did not render results")
 	}
 }

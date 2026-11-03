@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 
@@ -31,8 +30,15 @@ type searchOutcome struct {
 	errMsg string
 }
 
+// searchPage serves both the full page and the #results fragment; htmx
+// requests push the request URL via hx-push-url, so it stays shareable.
 func (s *Server) searchPage(w http.ResponseWriter, r *http.Request) {
 	set, num, name := searchParams(r)
+	if isHTMX(r) {
+		res := s.runSearch(r, set, num, name)
+		views.SearchResults(res.card, res.cards, res.total, res.decks, res.errMsg).Render(r.Context(), w)
+		return
+	}
 	var res searchOutcome
 	if set != "" || num != "" || name != "" {
 		res = s.runSearch(r, set, num, name)
@@ -40,29 +46,8 @@ func (s *Server) searchPage(w http.ResponseWriter, r *http.Request) {
 	views.SearchPage(set, num, name, res.card, res.cards, res.total, res.decks, res.errMsg).Render(r.Context(), w)
 }
 
-func (s *Server) searchResults(w http.ResponseWriter, r *http.Request) {
-	set, num, name := searchParams(r)
-	w.Header().Set("HX-Push-Url", searchURL(set, num, name))
-	res := s.runSearch(r, set, num, name)
-	views.SearchResults(res.card, res.cards, res.total, res.decks, res.errMsg).Render(r.Context(), w)
-}
-
 func searchParams(r *http.Request) (set, num, name string) {
 	return r.URL.Query().Get("set"), r.URL.Query().Get("num"), r.URL.Query().Get("name")
-}
-
-// searchURL rebuilds the shareable /search URL from whichever params are set.
-func searchURL(set, num, name string) string {
-	var q strings.Builder
-	q.WriteString("/search")
-	sep := "?"
-	for _, kv := range [][2]string{{"set", set}, {"num", num}, {"name", name}} {
-		if v := strings.TrimSpace(kv[1]); v != "" {
-			q.WriteString(sep + kv[0] + "=" + url.QueryEscape(v))
-			sep = "&"
-		}
-	}
-	return q.String()
 }
 
 // runSearch dispatches on the filled fields: a name wins, otherwise set+num

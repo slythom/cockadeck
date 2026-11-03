@@ -66,7 +66,7 @@ func DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"post\" action=\"/decks\" hx-post=\"/decks\" class=\"form-inline\"><input type=\"text\" name=\"name\" placeholder=\"Deck name\" required> <select name=\"format\"><option value=\"40-card\">40-card</option> <option value=\"commander\">commander</option></select> <input type=\"text\" name=\"description\" placeholder=\"Description (optional)\"> <button class=\"btn\" type=\"submit\">New deck</button></form></section><div class=\"deck-list\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"post\" action=\"/decks\" class=\"form-inline\"><input type=\"text\" name=\"name\" placeholder=\"Deck name\" required> <select name=\"format\"><option value=\"40-card\">40-card</option> <option value=\"commander\">commander</option></select> <input type=\"text\" name=\"description\" placeholder=\"Description (optional)\"> <button class=\"btn\" type=\"submit\">New deck</button></form></section><div class=\"deck-list\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,9 +115,9 @@ func DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(cardCount(d.CardCount))
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(d.CardCount)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/decks.templ`, Line: 27, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/decks.templ`, Line: 27, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {

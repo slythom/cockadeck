@@ -9,9 +9,9 @@ templ SearchPage(set, num, name string, card *sqlcgen.Card, cards []sqlcgen.Card
 	@Layout("Search", true) {
 		<section class="panel">
 			<h1 class="section-label">Card Search</h1>
-			<form action="/search" method="get" hx-get="/search/results" hx-target="#results" class="form-inline">
+			<form action="/search" method="get" hx-get="/search" hx-target="#results" hx-push-url="true" class="form-inline">
 				<input type="text" name="name" placeholder="Card name" value={ name } autocomplete="off"
-					hx-get="/search/results" hx-trigger="keyup changed delay:400ms"
+					hx-get="/search" hx-trigger="keyup changed delay:400ms" hx-push-url="true"
 					hx-target="#results" hx-include="closest form"/>
 				<input type="text" name="set" placeholder="Set code" value={ set } autocomplete="off"/>
 				<input type="text" name="num" placeholder="Collector #" value={ num } autocomplete="off"/>
@@ -65,11 +65,7 @@ templ CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 }
 
 templ CardListItem(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
-	<div class="deck-row">
-		<div class="card-thumb-wrap">
-			<img class="card-thumb" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
-			<img class="card-preview" src={ card.ImageUri } alt="" loading="lazy" aria-hidden="true"/>
-		</div>
+	@CardRow(card.ImageUri, card.Name) {
 		<div class="deck-row-info">
 			<span class="deck-row-name">{ card.Name }</span>
 			<span class="muted small">
@@ -82,7 +78,7 @@ templ CardListItem(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 		<div class="deck-row-ctl">
 			@AddToDeck(card, decks)
 		</div>
-	</div>
+	}
 }
 
 templ AddToDeck(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
@@ -104,7 +100,6 @@ templ AddToDeck(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 					<div class="num-input num-sm">
 						<input type="number" name="quantity" value="1" min="1"/>
 						<button type="button" class="num-btn" data-step="-1" aria-label="Decrease">&minus;</button>
-						<span class="num-sep" aria-hidden="true"></span>
 						<button type="button" class="num-btn" data-step="1" aria-label="Increase">+</button>
 					</div>
 					<button class="btn btn-sm" type="submit">Add</button>

@@ -10,7 +10,6 @@ document.addEventListener("click", (e) => {
 		input.stepUp();
 	}
 	input.dispatchEvent(new Event("input", { bubbles: true }));
-	input.dispatchEvent(new Event("change", { bubbles: true }));
 });
 
 function closeDropdowns() {

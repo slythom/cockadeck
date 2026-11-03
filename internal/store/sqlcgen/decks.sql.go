@@ -206,7 +206,7 @@ func (q *Queries) ListDeckCards(ctx context.Context, arg ListDeckCardsParams) ([
 
 const listDecks = `-- name: ListDecks :many
 SELECT d.id, d.user_id, d.name, d.description, d.format, d.created_at, d.updated_at,
-       COALESCE(SUM(dc.quantity), 0) AS card_count
+       CAST(COALESCE(SUM(dc.quantity), 0) AS INTEGER) AS card_count
 FROM decks d
 LEFT JOIN deck_cards dc ON dc.deck_id = d.id
 WHERE d.user_id = ?
@@ -215,14 +215,14 @@ ORDER BY d.updated_at DESC, d.id DESC
 `
 
 type ListDecksRow struct {
-	ID          int64       `json:"id"`
-	UserID      int64       `json:"user_id"`
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Format      string      `json:"format"`
-	CreatedAt   string      `json:"created_at"`
-	UpdatedAt   string      `json:"updated_at"`
-	CardCount   interface{} `json:"card_count"`
+	ID          int64  `json:"id"`
+	UserID      int64  `json:"user_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Format      string `json:"format"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+	CardCount   int64  `json:"card_count"`
 }
 
 func (q *Queries) ListDecks(ctx context.Context, userID int64) ([]ListDecksRow, error) {

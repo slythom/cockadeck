@@ -1,6 +1,6 @@
 -- name: ListDecks :many
 SELECT d.id, d.user_id, d.name, d.description, d.format, d.created_at, d.updated_at,
-       COALESCE(SUM(dc.quantity), 0) AS card_count
+       CAST(COALESCE(SUM(dc.quantity), 0) AS INTEGER) AS card_count
 FROM decks d
 LEFT JOIN deck_cards dc ON dc.deck_id = d.id
 WHERE d.user_id = ?

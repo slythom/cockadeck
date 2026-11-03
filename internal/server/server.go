@@ -35,7 +35,6 @@ func New(cfg config.Config, q sqlcgen.Querier, cards *catalog.Service) http.Hand
 
 	authed.HandleFunc("GET /{$}", s.home)
 	authed.HandleFunc("GET /search", s.searchPage)
-	authed.HandleFunc("GET /search/results", s.searchResults)
 	authed.HandleFunc("POST /logout", s.logout)
 
 	authed.HandleFunc("GET /decks", s.decksPage)
