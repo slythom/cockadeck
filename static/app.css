@@ -360,8 +360,9 @@ input:focus {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 1.6rem;
-	height: 1.6rem;
+	position: relative;
+	align-self: stretch;
+	min-width: 2.5rem;
 	padding: 0;
 	background: none;
 	border: none;
@@ -371,6 +372,13 @@ input:focus {
 	font-size: 1.05rem;
 	cursor: pointer;
 	transition: color 0.12s ease-out, background-color 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.num-btn::before,
+.qty-ctl button::before {
+	content: "";
+	position: absolute;
+	inset: -0.2rem 0;
 }
 
 .num-btn:hover,
@@ -391,7 +399,7 @@ input:focus {
 }
 
 .num-sm {
-	width: 6.25rem;
+	width: 8rem;
 }
 
 .dropdown {
@@ -589,13 +597,18 @@ select {
 }
 
 .btn-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.5rem;
+	min-height: 2.5rem;
 	background: none;
 	border: none;
 	border-radius: var(--radius);
 	color: var(--danger);
 	font-size: 1.1rem;
 	cursor: pointer;
-	padding: 0 0.4rem;
+	padding: 0;
 	transition: color 0.12s ease-out, background-color 0.12s ease-out;
 }
 
