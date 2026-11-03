@@ -69,7 +69,7 @@ templ CardListItem(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 		<div class="deck-row-info">
 			<span class="deck-row-name">{ card.Name }</span>
 			<span class="muted small">
-				{ card.SetName } · #{ card.CollectorNumber } · <span class="badge">{ card.Rarity }</span>
+				{ card.SetName } · #{ card.CollectorNumber } · { card.Rarity }
 				if card.ManaCost.Valid {
 					· <span class="mana-cost">{ card.ManaCost.String }</span>
 				}

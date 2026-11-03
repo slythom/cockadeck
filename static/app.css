@@ -40,6 +40,8 @@ body {
 	background: var(--bg);
 	color: var(--text);
 	font-family: "Open Sans", system-ui, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 	font-size: 15px;
 	line-height: 1.5;
 }
@@ -202,6 +204,11 @@ input:focus {
 	min-width: 8rem;
 }
 
+.form-inline select {
+	font-size: inherit;
+	padding: 0.5rem 0.75rem;
+}
+
 .card-result {
 	display: flex;
 	gap: 1.25rem;
@@ -309,6 +316,10 @@ input:focus {
 
 .filters .num-input {
 	width: 8.5rem;
+}
+
+.filters .dropdown-btn {
+	font-size: inherit;
 }
 
 .num-input,
@@ -583,6 +594,7 @@ input:focus {
 .qty {
 	min-width: 1.5rem;
 	padding: 0.4rem 0.5rem;
+	font-variant-numeric: tabular-nums;
 	text-align: center;
 }
 
