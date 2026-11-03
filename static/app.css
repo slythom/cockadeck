@@ -190,7 +190,7 @@ input:focus {
 .card-img {
 	width: 14rem;
 	max-width: 40vw;
-	border-radius: var(--radius);
+	border-radius: 4.75% / 3.4%;
 	align-self: flex-start;
 }
 
@@ -289,17 +289,19 @@ input:focus {
 	width: 8.5rem;
 }
 
-.num-input {
+.num-input,
+.qty-ctl {
 	display: flex;
 	align-items: center;
 	background: rgba(10, 15, 26, 0.8);
 	border: 1px solid var(--border);
-	border-radius: 999px;
+	border-radius: var(--radius);
 	padding: 0 0.25rem;
 	transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
 }
 
-.num-input:focus-within {
+.num-input:focus-within,
+.qty-ctl:focus-within {
 	border-color: var(--accent);
 	box-shadow: 0 0 0 1px var(--accent);
 }
@@ -331,7 +333,8 @@ input:focus {
 	margin: 0;
 }
 
-.num-btn {
+.num-btn,
+.qty-ctl button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -340,7 +343,7 @@ input:focus {
 	padding: 0;
 	background: none;
 	border: none;
-	border-radius: 999px;
+	border-radius: 4px;
 	color: var(--muted);
 	font: inherit;
 	font-size: 1.05rem;
@@ -348,12 +351,14 @@ input:focus {
 	transition: color 0.12s ease-out, background-color 0.12s ease-out, transform 0.12s ease-out;
 }
 
-.num-btn:hover {
+.num-btn:hover,
+.qty-ctl button:hover {
 	color: var(--accent);
 	background: rgba(45, 212, 191, 0.12);
 }
 
-.num-btn:active {
+.num-btn:active,
+.qty-ctl button:active {
 	transform: scale(0.96);
 }
 
@@ -378,7 +383,7 @@ input:focus {
 	gap: 0.6rem;
 	background: rgba(10, 15, 26, 0.8);
 	border: 1px solid var(--border);
-	border-radius: 999px;
+	border-radius: var(--radius);
 	padding: 0.4rem 0.75rem;
 	color: var(--text);
 	font: inherit;
@@ -503,7 +508,7 @@ input:focus {
 
 .card-thumb {
 	width: 3rem;
-	border-radius: 4px;
+	border-radius: 4.75% / 3.4%;
 }
 
 .card-preview {
@@ -515,7 +520,7 @@ input:focus {
 	max-height: 88vh;
 	height: auto;
 	border-radius: 4.75% / 3.4%;
-	box-shadow: 0 0 0 1px oklch(92.581% 0.0054 16.183 / 0.1), 0 0.5rem 2rem rgba(20, 166, 206, 0.55);
+	box-shadow: 0 0 0 1px oklch(1 0 0 / 0.1), 0 0.5rem 2rem rgba(45, 212, 191, 0.35);
 	z-index: 20;
 	pointer-events: none;
 	opacity: 0;
@@ -546,30 +551,9 @@ input:focus {
 	gap: 0.5rem;
 }
 
-.qty-ctl {
-	display: flex;
-	align-items: center;
-	gap: 0.4rem;
-}
-
-.qty-ctl button {
-	background: var(--panel);
-	border: 1px solid var(--border);
-	border-radius: 4px;
-	color: var(--text);
-	width: 1.6rem;
-	height: 1.6rem;
-	cursor: pointer;
-	font: inherit;
-}
-
-.qty-ctl button:hover {
-	border-color: var(--accent);
-	color: var(--accent);
-}
-
 .qty {
 	min-width: 1.5rem;
+	padding: 0.4rem 0.5rem;
 	text-align: center;
 }
 

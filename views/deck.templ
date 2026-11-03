@@ -36,7 +36,7 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 			</details>
 		</section>
 		<form id="deck-filters" class="filters" method="get" action={ deckURL(deck.ID) }
-			hx-get={ deckURL(deck.ID) } hx-target="#deck-cards" hx-swap="innerHTML"
+			hx-get={ deckURL(deck.ID) } hx-target="#deck-cards" hx-swap="innerMorph"
 			hx-trigger="input delay:300ms, change" hx-push-url="true">
 			<input type="text" name="set" placeholder="Set (code or name)" value={ f.Set }/>
 			<div class="dropdown">
@@ -114,19 +114,20 @@ templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
 		</div>
 		<div class="deck-row-ctl">
 			<form class="qty-ctl" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
-				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerHTML">
-				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity-1, 10) }>&minus;</button>
+				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerMorph">
 				<span class="qty">{ row.Quantity }</span>
+				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity-1, 10) }>&minus;</button>
+				<span class="num-sep" aria-hidden="true"></span>
 				<button type="submit" name="quantity" value={ strconv.FormatInt(row.Quantity+1, 10) }>+</button>
 			</form>
 			<select class="zone-select" name="new_zone" hx-patch={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
-				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerHTML" hx-trigger="change">
+				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerMorph" hx-trigger="change">
 				for _, z := range zoneOrder(deck.Format) {
 					<option value={ z } selected?={ z == row.Zone }>{ z }</option>
 				}
 			</select>
 			<button class="btn-icon" hx-delete={ deckCardRowURL(deck.ID, row.CardID, row.Zone) }
-				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerHTML"
+				hx-include="#deck-filters" hx-target="#deck-cards" hx-swap="innerMorph"
 				hx-confirm={ "Remove " + row.Name + "?" }>&times;</button>
 		</div>
 	</div>
