@@ -66,7 +66,10 @@ templ CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 
 templ CardListItem(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 	<div class="deck-row">
-		<img class="card-thumb" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
+		<div class="card-thumb-wrap">
+			<img class="card-thumb" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
+			<img class="card-preview" src={ card.ImageUri } alt="" loading="lazy" aria-hidden="true"/>
+		</div>
 		<div class="deck-row-info">
 			<span class="deck-row-name">{ card.Name }</span>
 			<span class="muted small">

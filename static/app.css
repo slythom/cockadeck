@@ -19,7 +19,8 @@ body {
 	min-height: 100vh;
 	background: var(--bg);
 	color: var(--text);
-	font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+	/* font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; */
+	font-family: "Open Sans", sans-serif;
 	font-size: 15px;
 	line-height: 1.5;
 }
@@ -320,9 +321,43 @@ input:focus {
 	font-weight: 600;
 }
 
+.card-thumb-wrap {
+	position: relative;
+	flex-shrink: 0;
+}
+
 .card-thumb {
 	width: 3rem;
 	border-radius: 4px;
+}
+
+.card-preview {
+	position: absolute;
+	right: calc(100% + 0.75rem);
+	top: 50%;
+	transform: translateY(-50%);
+	width: min(16.75rem, 44vw);
+	max-height: 88vh;
+	height: auto;
+	border-radius: 4.75% / 3.4%;
+	box-shadow: 0 0 0 1px oklch(92.581% 0.0054 16.183 / 0.1), 0 0.5rem 2rem rgba(20, 166, 206, 0.55);
+	z-index: 20;
+	pointer-events: none;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.12s ease-out, visibility 0.12s;
+}
+
+.card-thumb-wrap:hover .card-preview {
+	opacity: 1;
+	visibility: visible;
+	transition-delay: 0.08s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.card-preview {
+		transition: none;
+	}
 }
 
 .small {
