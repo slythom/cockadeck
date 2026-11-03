@@ -594,7 +594,7 @@ input:focus {
 
 .deck-row-ctl {
 	display: flex;
-	align-items: center;
+	align-items: stretch;
 	gap: 0.5rem;
 }
 
@@ -613,6 +613,11 @@ select {
 	color: var(--text);
 	font: inherit;
 	font-size: 0.85rem;
+}
+
+.zone-select {
+	font-size: inherit;
+	padding: 0.4rem 0.5rem;
 }
 
 .btn-icon {
