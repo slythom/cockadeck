@@ -1,0 +1,20 @@
+package views
+
+// ManaCost renders a Scryfall mana cost ("{2}{R}") as inline mana symbols,
+// like Gatherer's cardDetailsHeaderContent section. Symbols with dedicated
+// artwork come from the mana.svg sprite; numbers, X, and anything else fall
+// back to a generic gray circle with text (also matching Gatherer). Unbraced
+// segments (" // " on double-faced cards) render as plain text.
+templ ManaCost(cost string) {
+	<span class="mana-cost" role="img" title={ cost } aria-label={ "Mana cost " + cost }>
+		for _, tok := range manaTokens(cost) {
+			if !tok.Braced {
+				<span class="ms-sep" aria-hidden="true">{ tok.Sym }</span>
+			} else if id, ok := manaGlyphID(tok.Sym); ok {
+				<svg class="ms" aria-hidden="true"><use href={ "/static/mana.svg#" + id }></use></svg>
+			} else {
+				<span class="ms ms-generic" aria-hidden="true"><span class={ genericTextClass(tok.Sym) }>{ tok.Sym }</span></span>
+			}
+		}
+	</span>
+}

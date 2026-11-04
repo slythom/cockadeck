@@ -56,7 +56,7 @@ templ CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 			<p>
 				<span class={ "badge rarity-" + card.Rarity }>{ card.Rarity }</span>
 				if card.ManaCost.Valid {
-					<span class="mana-cost">{ card.ManaCost.String }</span>
+					@ManaCost(card.ManaCost.String)
 				}
 			</p>
 			@AddToDeck(card, decks)
@@ -71,7 +71,8 @@ templ CardListItem(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 			<span class="muted small">
 				{ card.SetName } · #{ card.CollectorNumber } · <span class={ "rarity-" + card.Rarity }>{ card.Rarity }</span>
 				if card.ManaCost.Valid {
-					· <span class="mana-cost">{ card.ManaCost.String }</span>
+					<span class="dim">·</span>
+					@ManaCost(card.ManaCost.String)
 				}
 			</span>
 		</div>

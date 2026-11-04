@@ -240,7 +240,42 @@ input:focus {
 }
 
 .mana-cost {
-	letter-spacing: 0.15em;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.12em;
+	margin-left: 0.25em;
+	font-size: 1.2em;
+	vertical-align: middle;
+}
+
+.ms {
+	width: 1em;
+	height: 1em;
+	flex-shrink: 0;
+}
+
+.ms-generic {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: #bfb5b4;
+	color: #000;
+}
+
+.ms-txt {
+	font-size: 0.66em;
+	font-weight: 600;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+}
+
+.ms-txt-2 {
+	font-size: 0.52em;
+}
+
+.ms-txt-3 {
+	font-size: 0.4em;
 }
 
 .rarity-rare {
