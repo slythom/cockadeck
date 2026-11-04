@@ -11,8 +11,10 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 			<div class="deck-head-top">
 				<div>
 					<h1 class="deck-title">{ deck.Name }</h1>
-					<span class="badge">{ deck.Format }</span>
-					<span class="muted">{ totalCards(rows) } cards</span>
+					<div class="deck-meta">
+						<span class="badge">{ deck.Format }</span>
+						<span class="muted">{ totalCards(rows) } cards</span>
+					</div>
 				</div>
 				<div class="deck-actions">
 					<a class="btn" href={ deckURL(deck.ID) + "/export.cod" } download>Export .cod</a>
