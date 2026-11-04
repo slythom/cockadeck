@@ -16,7 +16,9 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 				</div>
 				<div class="deck-actions">
 					<a class="btn" href={ deckURL(deck.ID) + "/export.cod" } download>Export .cod</a>
-					<button class="btn-danger" hx-delete={ deckURL(deck.ID) } hx-confirm="Delete this deck?">Delete</button>
+					<button class="btn-danger" hx-delete={ deckURL(deck.ID) }
+						hx-confirm="Delete %s? This can’t be undone." data-confirm-subject={ deck.Name }
+						data-confirm-label="Delete">Delete</button>
 				</div>
 			</div>
 			if deck.Description != "" {
@@ -114,7 +116,8 @@ templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
 				}
 			</select>
 			<button class="btn-icon" hx-delete={ deckCardRowURL(deck.ID, row.CardID, row.Zone) } { cardListSwap... }
-				hx-confirm={ "Remove " + row.Name + "?" }>&times;</button>
+				hx-confirm="Remove %s from the deck?" data-confirm-subject={ row.Name } data-confirm-label="Remove"
+				aria-label={ "Remove " + row.Name }>&times;</button>
 		</div>
 	}
 }

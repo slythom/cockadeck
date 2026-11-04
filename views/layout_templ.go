@@ -60,7 +60,7 @@ func Layout(title string, authed bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</main></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</main><dialog id=\"confirm-dialog\" class=\"confirm\" aria-labelledby=\"confirm-dialog-msg\"><p id=\"confirm-dialog-msg\" class=\"confirm-msg\"></p><div class=\"confirm-actions\"><button type=\"button\" class=\"btn-ghost\" data-confirm-cancel>Cancel</button> <button type=\"button\" class=\"btn-confirm\" data-confirm-ok>Delete</button></div></dialog></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

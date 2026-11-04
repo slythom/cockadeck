@@ -420,6 +420,8 @@ input:focus {
 .btn:active,
 .btn-danger:active,
 .btn-icon:active,
+.btn-ghost:active,
+.btn-confirm:active,
 .num-btn:active,
 .qty-ctl button:active {
 	transform: scale(0.96);
@@ -648,4 +650,126 @@ select {
 	font-size: 0.85rem;
 	padding: 0.4rem 0.9rem;
 	text-decoration: none;
+}
+
+.confirm {
+	inset: 0;
+	margin: auto;
+	width: min(22rem, calc(100% - 2.5rem));
+	height: fit-content;
+	padding: 1.25rem 1.5rem;
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	background: #121b2b;
+	color: var(--text);
+	box-shadow: 0 0.5rem 2rem rgba(4, 8, 14, 0.55), 0 0.25rem 0.75rem rgba(4, 8, 14, 0.35);
+}
+
+.confirm::backdrop {
+	background: rgba(4, 8, 14, 0.6);
+}
+
+.confirm[open] {
+	animation: confirm-in 0.15s ease-out;
+}
+
+.confirm.closing {
+	animation: confirm-out 0.12s ease-in forwards;
+}
+
+.confirm[open]::backdrop {
+	animation: confirm-fade-in 0.15s ease-out;
+}
+
+.confirm.closing::backdrop {
+	animation: confirm-fade-out 0.12s ease-in forwards;
+}
+
+@keyframes confirm-in {
+	from {
+		opacity: 0;
+		transform: translateY(0.5rem) scale(0.98);
+	}
+}
+
+@keyframes confirm-out {
+	to {
+		opacity: 0;
+		transform: translateY(0.25rem);
+	}
+}
+
+@keyframes confirm-fade-in {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes confirm-fade-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.confirm[open],
+	.confirm.closing,
+	.confirm[open]::backdrop,
+	.confirm.closing::backdrop {
+		animation: none;
+	}
+}
+
+.confirm-msg {
+	margin: 0;
+	text-wrap: pretty;
+}
+
+.confirm-msg strong {
+	font-weight: 600;
+}
+
+.confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1.25rem;
+}
+
+.btn-ghost {
+	background: none;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 0.4rem 0.9rem;
+	color: var(--text);
+	font: inherit;
+	cursor: pointer;
+	transition: border-color 0.12s ease-out, background-color 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.btn-ghost:hover {
+	border-color: var(--muted);
+	background: rgba(215, 225, 240, 0.06);
+}
+
+.btn-confirm {
+	background: var(--danger);
+	border: none;
+	border-radius: var(--radius);
+	padding: 0.4rem 0.9rem;
+	color: #3a0d0d;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: filter 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.btn-confirm:hover {
+	filter: brightness(1.08);
+}
+
+.btn-ghost:focus-visible,
+.btn-confirm:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 1px var(--bg), 0 0 0 3px var(--accent);
 }
