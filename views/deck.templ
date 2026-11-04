@@ -111,7 +111,7 @@ templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
 				}
 			</span>
 			<span class="muted small">
-				{ row.SetName } · #{ row.CollectorNumber } · <span class={ "rarity-" + row.Rarity }></span>{ row.Rarity }</span>
+				{ row.SetName } · #{ row.CollectorNumber } · <span class={ "rarity-" + row.Rarity }>{ row.Rarity }</span>
 				if row.ManaCost.Valid {
 					· <span class="mana-cost">{ row.ManaCost.String }</span>
 				}
