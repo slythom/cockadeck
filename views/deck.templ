@@ -39,28 +39,13 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 			hx-get={ deckURL(deck.ID) } hx-target="#deck-cards" hx-swap="innerMorph"
 			hx-trigger="input delay:300ms, change" hx-push-url="true">
 			<input type="text" name="set" placeholder="Set (code or name)" value={ f.Set }/>
-			<div class="dropdown">
-				<input type="hidden" name="rarity" value={ f.Rarity }/>
-				<button type="button" class="dropdown-btn" aria-haspopup="listbox" aria-expanded="false">
-					<span class="dropdown-label">
-						if f.Rarity == "" {
-							Any rarity
-						} else {
-							{ f.Rarity }
-						}
-					</span>
-					<svg class="chev" viewBox="0 0 12 12" width="12" height="12" fill="none" aria-hidden="true">
-						<path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
-				</button>
-				<div class="dropdown-menu" role="listbox">
-					<button type="button" class={ "dropdown-item", templ.KV("selected", f.Rarity == "") } data-value="" role="option">Any rarity</button>
-					for _, r := range rarities {
-						<button type="button" class={ "dropdown-item", templ.KV("selected", f.Rarity == r) } data-value={ r } role="option">{ r }</button>
-					}
-				</div>
-			</div>
-			<div class="num-input">
+			<select name="rarity">
+				<option value="">Any rarity</option>
+				for _, r := range rarities {
+					<option value={ r } selected?={ f.Rarity == r }>{ r }</option>
+				}
+			</select>
+			<div class="num-input num-md">
 				<input type="number" name="cmc" step="0.5" min="0" placeholder="Cost" value={ f.CMC }/>
 				<button type="button" class="num-btn" data-step="-1" aria-label="Decrease">&minus;</button>
 				<button type="button" class="num-btn" data-step="1" aria-label="Increase">+</button>

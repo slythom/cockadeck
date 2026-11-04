@@ -151,6 +151,7 @@ func TestSearchFlow(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 		req.Header.Set("HX-Request", "true")
+		req.Header.Set("HX-Target", "div#results")
 		resp, err := client.Do(req)
 		if err != nil {
 			t.Fatal(err)

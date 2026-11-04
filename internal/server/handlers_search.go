@@ -34,7 +34,7 @@ type searchOutcome struct {
 // requests push the request URL via hx-push-url, so it stays shareable.
 func (s *Server) searchPage(w http.ResponseWriter, r *http.Request) {
 	set, num, name := searchParams(r)
-	if isHTMX(r) {
+	if wantsFragment(r, "#results") {
 		res := s.runSearch(r, set, num, name)
 		views.SearchResults(res.card, res.cards, res.total, res.decks, res.errMsg).Render(r.Context(), w)
 		return
