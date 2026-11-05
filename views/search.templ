@@ -52,7 +52,7 @@ templ CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) {
 	<div class="panel card-result">
 		<img class="card-img" src={ card.ImageUri } alt={ card.Name } loading="lazy"/>
 		<div class="card-meta">
-			<span class="meta-label">Result.ID</span>
+			<span class="meta-label">Card Found</span>
 			<h2 class="card-name">{ card.Name }</h2>
 			if card.TypeLine.Valid {
 				<p class="muted">{ card.TypeLine.String }</p>

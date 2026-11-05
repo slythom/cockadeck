@@ -444,6 +444,10 @@ input:focus {
 	vertical-align: middle;
 }
 
+#deck-cards .mana-cost {
+	font-size: 1.5em;
+}
+
 .ms {
 	width: 1em;
 	height: 1em;

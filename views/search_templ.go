@@ -262,7 +262,7 @@ func CardResult(card sqlcgen.Card, decks []sqlcgen.ListDecksRow) templ.Component
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" loading=\"lazy\"><div class=\"card-meta\"><span class=\"meta-label\">Result.ID</span><h2 class=\"card-name\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" loading=\"lazy\"><div class=\"card-meta\"><span class=\"meta-label\">Card Found</span><h2 class=\"card-name\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
