@@ -65,6 +65,14 @@ func zoneTotal(rows []sqlcgen.ListDeckCardsRow, zone string) int64 {
 	return n
 }
 
+// shortDate trims a SQLite datetime ("YYYY-MM-DD HH:MM:SS") to its date part.
+func shortDate(s string) string {
+	if len(s) >= 10 {
+		return s[:10]
+	}
+	return s
+}
+
 func totalCards(rows []sqlcgen.ListDeckCardsRow) int64 {
 	var n int64
 	for _, r := range rows {
