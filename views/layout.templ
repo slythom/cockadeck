@@ -14,21 +14,25 @@ templ Layout(title string, authed bool) {
 		</head>
 		<body>
 			<header class="topbar">
-				<a class="brand" href="/">COCKADECK</a>
+				<a class="brand" href="/">COCKADECK<span aria-hidden="true">&nbsp;◤</span></a>
 				if authed {
 					<nav class="nav">
-						<a href="/search">Search</a>
-						<a href="/decks">Decks</a>
+						<a class="bracket" href="/search">Search</a>
+						<a class="bracket" href="/decks">Decks</a>
 						<form method="post" action="/logout" class="inline">
-							<button type="submit" class="linklike">Log out</button>
+							<button type="submit" class="bracket">Log out</button>
 						</form>
+						<span class="sys-status">STATUS: ONLINE <span class="cursor" aria-hidden="true">█</span></span>
 					</nav>
+				} else {
+					<span class="sys-status">SYS.AUTH <span class="cursor" aria-hidden="true">█</span></span>
 				}
 			</header>
 			<main class="container">
 				{ children... }
 			</main>
 			<dialog id="confirm-dialog" class="confirm" aria-labelledby="confirm-dialog-msg">
+				<p class="dialog-tag">Confirm.Action</p>
 				<p id="confirm-dialog-msg" class="confirm-msg"></p>
 				<div class="confirm-actions">
 					<button type="button" class="btn-ghost" data-confirm-cancel>Cancel</button>

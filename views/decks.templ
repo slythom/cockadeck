@@ -1,11 +1,18 @@
 package views
 
-import "cockadeck/internal/store/sqlcgen"
+import (
+	"cockadeck/internal/store/sqlcgen"
+	"fmt"
+)
 
 templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 	@Layout("Decks", true) {
 		<section class="panel">
-			<h1 class="section-label">Decks</h1>
+			<header class="section-head">
+				<span class="section-index">01</span>
+				<h1>Deck Registry</h1>
+				<span class="section-rule" aria-hidden="true"></span>
+			</header>
 			if errMsg != "" {
 				<p class="alert alert-error">{ errMsg }</p>
 			}
@@ -20,16 +27,19 @@ templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 			</form>
 		</section>
 		<div class="deck-list">
-			for _, d := range decks {
-				<a class="panel deck-item" href={ deckURL(d.ID) }>
+			for i, d := range decks {
+				<a class="deck-item" href={ deckURL(d.ID) }>
+					<span class="row-index">{ fmt.Sprintf("%03d", i+1) }</span>
 					<span class="deck-item-name">{ d.Name }</span>
-					<span class="badge">{ d.Format }</span>
-					<span class="muted">{ d.CardCount } cards</span>
+					<span class="deck-item-tail">
+						<span class="badge">{ d.Format }</span>
+						<span class="muted small">TTL.{ fmt.Sprintf("%03d", d.CardCount) }</span>
+					</span>
 				</a>
 			}
 		</div>
 		if len(decks) == 0 {
-			<p class="muted">No decks yet — create one above.</p>
+			<p class="muted small">{ "// No decks on record — create one above." }</p>
 		}
 	}
 }

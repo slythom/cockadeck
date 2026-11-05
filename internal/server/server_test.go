@@ -190,7 +190,7 @@ func TestSearchFlow(t *testing.T) {
 
 	// Name search → list fragment, result served from the API fill.
 	code, body = getHTMX("/search?name=prospector")
-	if code != http.StatusOK || !strings.Contains(body, "Prospector") || !strings.Contains(body, "1 match") {
+	if code != http.StatusOK || !strings.Contains(body, "Prospector") || !strings.Contains(body, "Matches: 1") {
 		t.Fatalf("name search: status %d, body missing card name/count", code)
 	}
 	if *lastQuery != "prospector" {
@@ -211,7 +211,7 @@ func TestSearchFlow(t *testing.T) {
 	resp := authedGet(t, srv, client, cookie, "/search?set=otj&num=10")
 	page, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	if resp.StatusCode != http.StatusOK || !strings.Contains(string(page), "Prospector") || !strings.Contains(string(page), "Card Search") {
+	if resp.StatusCode != http.StatusOK || !strings.Contains(string(page), "Prospector") || !strings.Contains(string(page), "Card.Lookup") {
 		t.Fatal("full search page did not render results")
 	}
 }

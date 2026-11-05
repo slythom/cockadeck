@@ -42,17 +42,22 @@ func Layout(title string, authed bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " · Cockadeck</title><link rel=\"stylesheet\" href=\"/static/app.css\"><link rel=\"icon\" href=\"/static/favicon.svg\" type=\"image/svg+xml\"><script src=\"/static/htmx.min.js\" defer></script><script src=\"/static/app.js\" defer></script></head><body><header class=\"topbar\"><a class=\"brand\" href=\"/\">COCKADECK</a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " · Cockadeck</title><link rel=\"stylesheet\" href=\"/static/app.css\"><link rel=\"icon\" href=\"/static/favicon.svg\" type=\"image/svg+xml\"><script src=\"/static/htmx.min.js\" defer></script><script src=\"/static/app.js\" defer></script></head><body><header class=\"topbar\"><a class=\"brand\" href=\"/\">COCKADECK<span aria-hidden=\"true\">&nbsp;◤</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if authed {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav class=\"nav\"><a href=\"/search\">Search</a> <a href=\"/decks\">Decks</a><form method=\"post\" action=\"/logout\" class=\"inline\"><button type=\"submit\" class=\"linklike\">Log out</button></form></nav>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav class=\"nav\"><a class=\"bracket\" href=\"/search\">Search</a> <a class=\"bracket\" href=\"/decks\">Decks</a><form method=\"post\" action=\"/logout\" class=\"inline\"><button type=\"submit\" class=\"bracket\">Log out</button></form><span class=\"sys-status\">STATUS: ONLINE <span class=\"cursor\" aria-hidden=\"true\">█</span></span></nav>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"sys-status\">SYS.AUTH <span class=\"cursor\" aria-hidden=\"true\">█</span></span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</header><main class=\"container\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</header><main class=\"container\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,7 +65,7 @@ func Layout(title string, authed bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</main><dialog id=\"confirm-dialog\" class=\"confirm\" aria-labelledby=\"confirm-dialog-msg\"><p id=\"confirm-dialog-msg\" class=\"confirm-msg\"></p><div class=\"confirm-actions\"><button type=\"button\" class=\"btn-ghost\" data-confirm-cancel>Cancel</button> <button type=\"button\" class=\"btn-confirm\" data-confirm-ok>Delete</button></div></dialog></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</main><dialog id=\"confirm-dialog\" class=\"confirm\" aria-labelledby=\"confirm-dialog-msg\"><p class=\"dialog-tag\">Confirm.Action</p><p id=\"confirm-dialog-msg\" class=\"confirm-msg\"></p><div class=\"confirm-actions\"><button type=\"button\" class=\"btn-ghost\" data-confirm-cancel>Cancel</button> <button type=\"button\" class=\"btn-confirm\" data-confirm-ok>Delete</button></div></dialog></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

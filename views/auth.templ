@@ -3,7 +3,11 @@ package views
 templ LoginPage(email, err string) {
 	@Layout("Log in", false) {
 		<section class="panel auth-panel">
-			<h1 class="section-label">Access Terminal</h1>
+			<header class="section-head">
+				<span class="section-index">SYS</span>
+				<h1>Access Terminal</h1>
+				<span class="section-rule" aria-hidden="true"></span>
+			</header>
 			if err != "" {
 				<p class="alert alert-error">{ err }</p>
 			}
@@ -26,7 +30,11 @@ templ LoginPage(email, err string) {
 templ RegisterPage(email, displayName, err string) {
 	@Layout("Register", false) {
 		<section class="panel auth-panel">
-			<h1 class="section-label">New Operative</h1>
+			<header class="section-head">
+				<span class="section-index">SYS</span>
+				<h1>New Operative</h1>
+				<span class="section-rule" aria-hidden="true"></span>
+			</header>
 			if err != "" {
 				<p class="alert alert-error">{ err }</p>
 			}

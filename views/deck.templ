@@ -2,23 +2,25 @@ package views
 
 import (
 	"cockadeck/internal/store/sqlcgen"
+	"fmt"
 	"strconv"
 )
 
 templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters, errMsg string) {
 	@Layout(deck.Name, true) {
 		<section class="panel deck-head">
+			<span class="meta-label">Subject.ID</span>
 			<div class="deck-head-top">
 				<div>
 					<h1 class="deck-title">{ deck.Name }</h1>
 					<div class="deck-meta">
 						<span class="badge">{ deck.Format }</span>
-						<span class="muted">{ totalCards(rows) } cards</span>
+						<span>Size.{ fmt.Sprintf("%03d", totalCards(rows)) }</span>
 					</div>
 				</div>
 				<div class="deck-actions">
-					<a class="btn" href={ deckURL(deck.ID) + "/export.cod" } download>Export .cod</a>
-					<button class="btn-danger" hx-delete={ deckURL(deck.ID) }
+					<a class="bracket" href={ deckURL(deck.ID) + "/export.cod" } download>Export.cod</a>
+					<button class="bracket bracket-danger" hx-delete={ deckURL(deck.ID) }
 						hx-confirm="Delete %s? This can’t be undone." data-confirm-subject={ deck.Name }
 						data-confirm-label="Delete">Delete</button>
 				</div>
@@ -27,7 +29,7 @@ templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters
 				<p class="muted">{ deck.Description }</p>
 			}
 			<details class="deck-edit">
-				<summary>Edit deck</summary>
+				<summary class="bracket">Edit deck</summary>
 				<form method="post" action={ deckURL(deck.ID) } class="form-inline">
 					<input type="text" name="name" value={ deck.Name } required/>
 					<select name="format">
@@ -68,20 +70,21 @@ templ DeckCardList(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, errMsg st
 	if len(rows) == 0 {
 		<p class="muted">No cards here yet — <a href="/search">search for cards</a> to add.</p>
 	}
-	for _, zone := range zoneOrder(deck.Format) {
+	for i, zone := range zoneOrder(deck.Format) {
 		if len(zoneRows(rows, zone)) > 0 {
 			<section class="zone-group">
-				<h2 class="zone-label">{ zone } <span class="muted">{ zoneTotal(rows, zone) }</span></h2>
-				for _, row := range zoneRows(rows, zone) {
-					@DeckCardRow(deck, row)
+				<h2 class="zone-label"><span class="zone-index">Zone.{ fmt.Sprintf("%02d", i+1) }</span> — { zone } <span class="muted">[ { zoneTotal(rows, zone) } ]</span></h2>
+				for j, row := range zoneRows(rows, zone) {
+					@DeckCardRow(deck, row, j+1)
 				}
 			</section>
 		}
 	}
 }
 
-templ CardRow(imgUri, name string) {
+templ CardRow(idx int, imgUri, name string) {
 	<div class="deck-row">
+		<span class="row-index">{ fmt.Sprintf("%02d", idx) }</span>
 		<div class="card-thumb-wrap">
 			<img class="card-thumb" src={ imgUri } alt={ name } loading="lazy"/>
 			<img class="card-preview" src={ imgUri } alt="" loading="lazy" aria-hidden="true"/>
@@ -90,8 +93,8 @@ templ CardRow(imgUri, name string) {
 	</div>
 }
 
-templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow) {
-	@CardRow(row.ImageUri, row.Name) {
+templ DeckCardRow(deck sqlcgen.Deck, row sqlcgen.ListDeckCardsRow, idx int) {
+	@CardRow(idx, row.ImageUri, row.Name) {
 		<div class="deck-row-info">
 			<span class="deck-row-name">
 				{ row.Name }
