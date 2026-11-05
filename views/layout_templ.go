@@ -42,22 +42,61 @@ func Layout(title string, authed bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " · Cockadeck</title><link rel=\"stylesheet\" href=\"/static/app.css\"><link rel=\"icon\" href=\"/static/favicon.svg\" type=\"image/svg+xml\"><script src=\"/static/htmx.min.js\" defer></script><script src=\"/static/app.js\" defer></script></head><body><header class=\"topbar\"><a class=\"brand\" href=\"/\">COCKADECK<span aria-hidden=\"true\">&nbsp;◤</span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " · Cockadeck</title><link rel=\"stylesheet\" href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 templ.SafeURL
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(staticURL("app.css"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 10, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><link rel=\"icon\" href=\"/static/favicon.svg\" type=\"image/svg+xml\"><script src=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(staticURL("htmx.min.js"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 12, Col: 41}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" defer></script><script src=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(staticURL("app.js"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `views/layout.templ`, Line: 13, Col: 36}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" defer></script></head><body><header class=\"topbar\"><a class=\"brand\" href=\"/\">COCKADECK<span aria-hidden=\"true\">&nbsp;◤</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if authed {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<nav class=\"nav\"><a class=\"bracket\" href=\"/search\">Search</a> <a class=\"bracket\" href=\"/decks\">Decks</a><form method=\"post\" action=\"/logout\" class=\"inline\"><button type=\"submit\" class=\"bracket\">Log out</button></form><span class=\"sys-status\">STATUS: ONLINE <span class=\"cursor\" aria-hidden=\"true\">█</span></span></nav>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<nav class=\"nav\"><a class=\"bracket\" href=\"/search\">Search</a> <a class=\"bracket\" href=\"/decks\">Decks</a><form method=\"post\" action=\"/logout\" class=\"inline\"><button type=\"submit\" class=\"bracket\">Log out</button></form><span class=\"sys-status\">STATUS: ONLINE <span class=\"cursor\" aria-hidden=\"true\">█</span></span></nav>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span class=\"sys-status\">SYS.AUTH <span class=\"cursor\" aria-hidden=\"true\">█</span></span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"sys-status\">SYS.AUTH <span class=\"cursor\" aria-hidden=\"true\">█</span></span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</header><main class=\"container\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</header><main class=\"container\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -65,7 +104,7 @@ func Layout(title string, authed bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</main><footer class=\"statusline\"><span>COCKADECK</span> <span>© 2026</span></footer><dialog id=\"confirm-dialog\" class=\"confirm\" aria-labelledby=\"confirm-dialog-msg\"><p class=\"dialog-tag\">Confirm.Action</p><p id=\"confirm-dialog-msg\" class=\"confirm-msg\"></p><div class=\"confirm-actions\"><button type=\"button\" class=\"btn-ghost\" data-confirm-cancel>Cancel</button> <button type=\"button\" class=\"btn-confirm\" data-confirm-ok>Delete</button></div></dialog></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</main><footer class=\"statusline\"><span>COCKADECK</span> <span>© 2026</span></footer><dialog id=\"confirm-dialog\" class=\"confirm\" aria-labelledby=\"confirm-dialog-msg\"><p class=\"dialog-tag\">Confirm.Action</p><p id=\"confirm-dialog-msg\" class=\"confirm-msg\"></p><div class=\"confirm-actions\"><button type=\"button\" class=\"btn-ghost\" data-confirm-cancel>Cancel</button> <button type=\"button\" class=\"btn-confirm\" data-confirm-ok>Delete</button></div></dialog></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

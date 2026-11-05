@@ -73,6 +73,7 @@
 }
 
 :root {
+	color-scheme: dark;
 	--bg: #07090d;
 	--panel: #0d1219;
 	--inset: #090d14;
@@ -400,8 +401,7 @@ input:focus {
 }
 
 .form-inline select {
-	font-size: inherit;
-	padding: 0.5rem 0.75rem;
+	padding: 0.5rem 2.1rem 0.5rem 0.75rem;
 }
 
 .card-result {
@@ -600,7 +600,7 @@ input:focus {
 
 .filters > input,
 .filters > select {
-	background: var(--inset);
+	background-color: var(--inset);
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
 	padding: 0.4rem 0.6rem;
@@ -609,13 +609,7 @@ input:focus {
 }
 
 .filters > select {
-	-webkit-appearance: none;
-	appearance: none;
-	padding-right: 2rem;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' stroke='%2371829a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 0.6rem center;
-	cursor: pointer;
+	padding-right: 1.9rem;
 }
 
 .num-input,
@@ -819,20 +813,45 @@ input:focus {
 }
 
 select {
-	background: var(--inset);
+	-webkit-appearance: none;
+	appearance: none;
+	background-color: var(--inset);
 	border: 1px solid var(--border);
 	border-radius: var(--radius);
-	padding: 0.35rem 0.5rem;
+	padding: 0.35rem 1.9rem 0.35rem 0.5rem;
+	background-image:
+		linear-gradient(45deg, transparent 50%, #9fb0c4 50%),
+		linear-gradient(135deg, #9fb0c4 50%, transparent 50%);
+	background-repeat: no-repeat;
+	background-position: right 1.05rem center, right 0.55rem center;
+	background-size: 0.5em 0.5em;
 	color: var(--text);
 	font: inherit;
 	font-family: var(--mono);
 	font-size: 0.72rem;
 	text-transform: uppercase;
+	cursor: pointer;
+	transition: border-color 0.12s ease-out, box-shadow 0.12s ease-out;
+}
+
+select:hover {
+	border-color: var(--border-strong);
+}
+
+select:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: 0 0 0 1px var(--accent);
+}
+
+option {
+	background: var(--panel);
+	color: var(--text);
 }
 
 .zone-select {
 	font-size: inherit;
-	padding: 0.4rem 0.5rem;
+	padding: 0.4rem 1.9rem 0.4rem 0.5rem;
 	text-transform: none;
 }
 

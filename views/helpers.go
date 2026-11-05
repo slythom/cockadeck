@@ -1,13 +1,33 @@
 package views
 
 import (
+	"hash/fnv"
+	"io"
 	"net/url"
 	"strconv"
 
 	"cockadeck/internal/store/sqlcgen"
+	"cockadeck/static"
 
 	"github.com/a-h/templ"
 )
+
+// staticVer fingerprints the embedded assets so stylesheet/script URLs change
+// whenever the binary is rebuilt — the /static/ cache is max-age=1h.
+var staticVer = func() string {
+	h := fnv.New64a()
+	for _, name := range []string{"app.css", "app.js", "htmx.min.js"} {
+		if f, err := static.FS.Open(name); err == nil {
+			io.Copy(h, f)
+			f.Close()
+		}
+	}
+	return strconv.FormatUint(h.Sum64(), 36)
+}()
+
+func staticURL(name string) string {
+	return "/static/" + name + "?v=" + staticVer
+}
 
 // cardListSwap is the shared contract for deck-row controls: submit the
 // current filters and morph the re-rendered card list back into place.

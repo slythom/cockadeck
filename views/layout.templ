@@ -7,10 +7,10 @@ templ Layout(title string, authed bool) {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>{ title } · Cockadeck</title>
-			<link rel="stylesheet" href="/static/app.css"/>
+			<link rel="stylesheet" href={ staticURL("app.css") }/>
 			<link rel="icon" href="/static/favicon.svg" type="image/svg+xml"/>
-			<script src="/static/htmx.min.js" defer></script>
-			<script src="/static/app.js" defer></script>
+			<script src={ staticURL("htmx.min.js") } defer></script>
+			<script src={ staticURL("app.js") } defer></script>
 		</head>
 		<body>
 			<header class="topbar">
