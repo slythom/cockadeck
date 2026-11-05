@@ -9,8 +9,8 @@ templ SearchPage(set, num, name string, card *sqlcgen.Card, cards []sqlcgen.Card
 	@Layout("Search", true) {
 		<section class="panel">
 			<header class="section-head">
-				<span class="section-index">Q</span>
-				<h1>Query // Card.Lookup</h1>
+				<span class="section-index">C</span>
+				<h1>Card.Lookup</h1>
 				<span class="section-rule" aria-hidden="true"></span>
 			</header>
 			<form action="/search" method="get" hx-get="/search" hx-target="#results" hx-push-url="true" class="form-inline">

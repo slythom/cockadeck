@@ -509,7 +509,7 @@ input:focus {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
-	padding: 0.85rem 0.5rem;
+	padding: 1.35rem 0.7rem;
 	border-top: 1px solid var(--border);
 	color: var(--text);
 	transition: background-color 0.12s ease-out;
@@ -532,7 +532,13 @@ input:focus {
 	font-variant-numeric: tabular-nums;
 }
 
+.deck-item .badge {
+	font-size: 0.78rem;
+	padding: 0.15rem 0.55rem;
+}
+
 .deck-item-name {
+	font-size: 1.15rem;
 	font-weight: 600;
 	transition: color 0.12s ease-out;
 }
@@ -540,8 +546,24 @@ input:focus {
 .deck-item-tail {
 	margin-left: auto;
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	gap: 0.9rem;
+}
+
+.deck-count {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: var(--mono);
+	font-size: 0.88rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--accent);
+}
+
+.deck-count svg {
+	width: 1em;
+	height: 1em;
+	flex-shrink: 0;
 }
 
 .deck-head {

@@ -69,7 +69,7 @@ templ DeckCardList(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, errMsg st
 		<p class="alert alert-error">{ errMsg }</p>
 	}
 	if len(rows) == 0 {
-		<p class="muted small">{ "// No cards on record — " }<a href="/search">run a query</a>{ " to add." }</p>
+		<p class="muted small">{ "// No cards on record — " }<a href="/search">lookup a card</a>{ " to add." }</p>
 	}
 	for i, zone := range zoneOrder(deck.Format) {
 		if len(zoneRows(rows, zone)) > 0 {

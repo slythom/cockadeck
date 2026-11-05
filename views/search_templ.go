@@ -46,7 +46,7 @@ func SearchPage(set, num, name string, card *sqlcgen.Card, cards []sqlcgen.Card,
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"panel\"><header class=\"section-head\"><span class=\"section-index\">Q</span><h1>Query // Card.Lookup</h1><span class=\"section-rule\" aria-hidden=\"true\"></span></header><form action=\"/search\" method=\"get\" hx-get=\"/search\" hx-target=\"#results\" hx-push-url=\"true\" class=\"form-inline\"><input type=\"text\" name=\"name\" placeholder=\"Card name\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"panel\"><header class=\"section-head\"><span class=\"section-index\">C</span><h1>Card.Lookup</h1><span class=\"section-rule\" aria-hidden=\"true\"></span></header><form action=\"/search\" method=\"get\" hx-get=\"/search\" hx-target=\"#results\" hx-push-url=\"true\" class=\"form-inline\"><input type=\"text\" name=\"name\" placeholder=\"Card name\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
