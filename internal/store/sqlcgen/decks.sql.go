@@ -204,6 +204,48 @@ func (q *Queries) ListDeckCards(ctx context.Context, arg ListDeckCardsParams) ([
 	return items, nil
 }
 
+const listDeckColors = `-- name: ListDeckColors :many
+SELECT dc.deck_id,
+       CAST((CASE WHEN MAX(c.mana_cost LIKE '%W%') THEN 'W' ELSE '' END) ||
+       (CASE WHEN MAX(c.mana_cost LIKE '%U%') THEN 'U' ELSE '' END) ||
+       (CASE WHEN MAX(c.mana_cost LIKE '%B%') THEN 'B' ELSE '' END) ||
+       (CASE WHEN MAX(c.mana_cost LIKE '%R%') THEN 'R' ELSE '' END) ||
+       (CASE WHEN MAX(c.mana_cost LIKE '%G%') THEN 'G' ELSE '' END) AS TEXT) AS colors
+FROM deck_cards dc
+JOIN cards c ON c.id = dc.card_id
+JOIN decks d ON d.id = dc.deck_id
+WHERE d.user_id = ?
+GROUP BY dc.deck_id
+`
+
+type ListDeckColorsRow struct {
+	DeckID int64  `json:"deck_id"`
+	Colors string `json:"colors"`
+}
+
+func (q *Queries) ListDeckColors(ctx context.Context, userID int64) ([]ListDeckColorsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDeckColors, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListDeckColorsRow
+	for rows.Next() {
+		var i ListDeckColorsRow
+		if err := rows.Scan(&i.DeckID, &i.Colors); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listDecks = `-- name: ListDecks :many
 SELECT d.id, d.user_id, d.name, d.description, d.format, d.created_at, d.updated_at,
        CAST(COALESCE(SUM(dc.quantity), 0) AS INTEGER) AS card_count

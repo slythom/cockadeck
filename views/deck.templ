@@ -9,7 +9,7 @@ import (
 templ DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters, errMsg string) {
 	@Layout(deck.Name, true) {
 		<section class="panel deck-head">
-			<span class="meta-label">Subject.ID</span>
+			<span class="meta-label">Deck beautifully named...</span>
 			<div class="deck-head-top">
 				<div>
 					<h1 class="deck-title">{ deck.Name }</h1>

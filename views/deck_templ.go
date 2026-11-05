@@ -47,7 +47,7 @@ func DeckPage(deck sqlcgen.Deck, rows []sqlcgen.ListDeckCardsRow, f DeckFilters,
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"panel deck-head\"><span class=\"meta-label\">Subject.ID</span><div class=\"deck-head-top\"><div><h1 class=\"deck-title\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"panel deck-head\"><span class=\"meta-label\">Deck beautifully named...</span><div class=\"deck-head-top\"><div><h1 class=\"deck-title\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

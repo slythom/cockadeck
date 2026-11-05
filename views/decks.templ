@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
+templ DecksPage(decks []sqlcgen.ListDecksRow, colors map[int64]string, errMsg string) {
 	@Layout("Decks", true) {
 		<section class="panel">
 			<header class="section-head">
@@ -18,10 +18,12 @@ templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 			}
 			<form method="post" action="/decks" class="form-inline">
 				<input type="text" name="name" placeholder="Deck name" required/>
+				<label class="form-tag">Format
 				<select name="format">
 					<option value="40-card">40-card</option>
 					<option value="commander">commander</option>
 				</select>
+				</label>
 				<input type="text" name="description" placeholder="Description (optional)"/>
 				<button class="btn" type="submit">New deck</button>
 			</form>
@@ -31,6 +33,9 @@ templ DecksPage(decks []sqlcgen.ListDecksRow, errMsg string) {
 				<a class="deck-item" href={ deckURL(d.ID) }>
 					<span class="row-index">{ fmt.Sprintf("%03d", i+1) }</span>
 					<span class="deck-item-name">{ d.Name }</span>
+					if cost := colors[d.ID]; cost != "" {
+						@ManaCost(cost)
+					}
 					<span class="deck-item-tail">
 						<span class="badge">{ d.Format }</span>
 						<span class="deck-count">

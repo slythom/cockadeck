@@ -62,16 +62,31 @@ func (s *Server) decksPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) renderDecksPage(w http.ResponseWriter, r *http.Request, errMsg string, code int) {
-	decks, err := s.cards.ListDecks(r.Context(), userID(r))
+	uid := userID(r)
+	decks, err := s.cards.ListDecks(r.Context(), uid)
 	if err != nil {
 		slog.Error("list decks", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	colorRows, err := s.q.ListDeckColors(r.Context(), uid)
+	if err != nil {
+		slog.Error("list deck colors", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	colors := make(map[int64]string, len(colorRows))
+	for _, c := range colorRows {
+		var b strings.Builder
+		for _, l := range c.Colors {
+			b.WriteString("{" + string(l) + "}")
+		}
+		colors[c.DeckID] = b.String()
+	}
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 	}
-	views.DecksPage(decks, errMsg).Render(r.Context(), w)
+	views.DecksPage(decks, colors, errMsg).Render(r.Context(), w)
 }
 
 func (s *Server) createDeck(w http.ResponseWriter, r *http.Request) {

@@ -20,6 +20,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int64) (User, error)
 	ListDeckCards(ctx context.Context, arg ListDeckCardsParams) ([]ListDeckCardsRow, error)
+	ListDeckColors(ctx context.Context, userID int64) ([]ListDeckColorsRow, error)
 	ListDecks(ctx context.Context, userID int64) ([]ListDecksRow, error)
 	SetDeckCardQuantity(ctx context.Context, arg SetDeckCardQuantityParams) error
 	UpdateDeck(ctx context.Context, arg UpdateDeckParams) error
