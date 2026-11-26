@@ -61,14 +61,18 @@ DELETE FROM deck_cards
 WHERE deck_id = sqlc.arg(deck_id) AND card_id = sqlc.arg(card_id) AND zone = sqlc.arg(zone);
 
 -- name: ListDeckColors :many
+-- Deck colors are the union of cards.color_identity (Scryfall color identity,
+-- not mana cost) over the main and commander zones; sideboard cards do not
+-- contribute to the displayed identity.
 SELECT dc.deck_id,
-       CAST((CASE WHEN MAX(c.mana_cost LIKE '%W%') THEN 'W' ELSE '' END) ||
-       (CASE WHEN MAX(c.mana_cost LIKE '%U%') THEN 'U' ELSE '' END) ||
-       (CASE WHEN MAX(c.mana_cost LIKE '%B%') THEN 'B' ELSE '' END) ||
-       (CASE WHEN MAX(c.mana_cost LIKE '%R%') THEN 'R' ELSE '' END) ||
-       (CASE WHEN MAX(c.mana_cost LIKE '%G%') THEN 'G' ELSE '' END) AS TEXT) AS colors
+       CAST((CASE WHEN MAX(c.color_identity LIKE '%W%') THEN 'W' ELSE '' END) ||
+       (CASE WHEN MAX(c.color_identity LIKE '%U%') THEN 'U' ELSE '' END) ||
+       (CASE WHEN MAX(c.color_identity LIKE '%B%') THEN 'B' ELSE '' END) ||
+       (CASE WHEN MAX(c.color_identity LIKE '%R%') THEN 'R' ELSE '' END) ||
+       (CASE WHEN MAX(c.color_identity LIKE '%G%') THEN 'G' ELSE '' END) AS TEXT) AS colors
 FROM deck_cards dc
 JOIN cards c ON c.id = dc.card_id
 JOIN decks d ON d.id = dc.deck_id
 WHERE d.user_id = ?
+  AND dc.zone != 'sideboard'
 GROUP BY dc.deck_id;

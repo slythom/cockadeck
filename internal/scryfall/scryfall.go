@@ -54,6 +54,7 @@ type Card struct {
 	CollectorNumber string     `json:"collector_number"`
 	Rarity          string     `json:"rarity"`
 	ManaCost        string     `json:"mana_cost"`
+	ColorIdentity   []string   `json:"color_identity"`
 	CMC             float64    `json:"cmc"`
 	TypeLine        string     `json:"type_line"`
 	ImageURIs       imageURIs  `json:"image_uris"`

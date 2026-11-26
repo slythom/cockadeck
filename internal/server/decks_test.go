@@ -32,11 +32,18 @@ func authedForm(t *testing.T, srv *httptest.Server, client *http.Client, cookie 
 
 func seedCard(t *testing.T, q *sqlcgen.Queries, id, name string) {
 	t.Helper()
+	seedCardFull(t, q, id, name, "", "")
+}
+
+func seedCardFull(t *testing.T, q *sqlcgen.Queries, id, name, manaCost, colorIdentity string) {
+	t.Helper()
 	_, err := q.UpsertCard(context.Background(), sqlcgen.UpsertCardParams{
 		ID: id, OracleID: "o-" + id, Name: name, SetCode: "otj",
 		SetName: "Outlaws of Thunder Junction", CollectorNumber: "1",
-		Rarity: "common", Cmc: sql.NullFloat64{Float64: 2, Valid: true},
-		ImageUri: "https://img/x.jpg", Raw: "{}",
+		Rarity: "common", ManaCost: sql.NullString{String: manaCost, Valid: manaCost != ""},
+		ColorIdentity: colorIdentity,
+		Cmc:           sql.NullFloat64{Float64: 2, Valid: true},
+		ImageUri:      "https://img/x.jpg", Raw: "{}",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -209,6 +216,70 @@ func TestDeckPageHTMXFragment(t *testing.T) {
 	b = body(t, resp)
 	if !strings.Contains(b, `class="topbar"`) || !strings.Contains(b, `id="deck-cards"`) {
 		t.Fatal("full page missing chrome")
+	}
+}
+
+// Deck colors come from cards.color_identity (Scryfall color identity), not
+// mana_cost: a colorless-cost card with a colored identity still counts, and
+// sideboard cards do not contribute.
+func TestDeckColorsUseColorIdentity(t *testing.T) {
+	h, q := newTestServer(t, "http://127.0.0.1:1")
+	srv := httptest.NewServer(h)
+	defer srv.Close()
+	client := noRedirectClient()
+	cookie := registerAndCookie(t, srv, client)
+
+	resp := authedForm(t, srv, client, cookie, http.MethodPost, "/decks", url.Values{
+		"name": {"Colors"}, "format": {"40-card"},
+	})
+	deckPath := resp.Header.Get("Location")
+	resp.Body.Close()
+
+	// Colorless mana cost but red identity (e.g. a Devoid card): old
+	// mana_cost LIKE logic missed this entirely.
+	seedCardFull(t, q, "card-drac", "Dracozoll", "{2}", "R")
+	// Green card, ordinary cost.
+	seedCardFull(t, q, "card-golgari", "Golgari Thug", "{1}{G}", "G")
+	// Blue card in the sideboard only: must not contribute to identity.
+	seedCardFull(t, q, "card-island", "Island", "{U}", "U")
+
+	for _, c := range []struct{ id, zone string }{
+		{"card-drac", "main"}, {"card-golgari", "main"}, {"card-island", "sideboard"},
+	} {
+		resp = authedForm(t, srv, client, cookie, http.MethodPost, deckPath+"/cards", url.Values{
+			"card_id": {c.id}, "zone": {c.zone}, "quantity": {"1"},
+		})
+		resp.Body.Close()
+	}
+
+	user, err := q.GetUserByEmail(context.Background(), "user@example.com")
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows, err := q.ListDeckColors(context.Background(), user.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rows) != 1 {
+		t.Fatalf("ListDeckColors rows = %d, want 1", len(rows))
+	}
+	// WUBRG order → R before G; no U (sideboard) and no W/B.
+	if rows[0].Colors != "RG" {
+		t.Fatalf("deck colors = %q, want %q", rows[0].Colors, "RG")
+	}
+
+	// The decks page renders the identity as mana symbols.
+	resp = authedGet(t, srv, client, cookie, "/decks")
+	b := body(t, resp)
+	for _, sym := range []string{"ms-r", "ms-g"} {
+		if !strings.Contains(b, "mana.svg#"+sym) {
+			t.Fatalf("decks page missing mana symbol %s", sym)
+		}
+	}
+	for _, sym := range []string{"ms-u", "ms-w", "ms-b"} {
+		if strings.Contains(b, "mana.svg#"+sym) {
+			t.Fatalf("decks page shows unexpected mana symbol %s", sym)
+		}
 	}
 }
 
