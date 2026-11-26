@@ -88,6 +88,7 @@ func (s *Service) cacheCard(ctx context.Context, sc *scryfall.Card) (sqlcgen.Car
 		CollectorNumber: sc.CollectorNumber,
 		Rarity:          sc.Rarity,
 		ManaCost:        sql.NullString{String: sc.ManaCost, Valid: sc.ManaCost != ""},
+		ColorIdentity:   strings.Join(sc.ColorIdentity, ""),
 		Cmc:             sql.NullFloat64{Float64: sc.CMC, Valid: true},
 		TypeLine:        sql.NullString{String: sc.TypeLine, Valid: sc.TypeLine != ""},
 		ImageUri:        sc.ImageURIs.Normal,

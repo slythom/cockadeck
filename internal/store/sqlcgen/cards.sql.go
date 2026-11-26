@@ -12,7 +12,7 @@ import (
 
 const getCardByID = `-- name: GetCardByID :one
 SELECT id, oracle_id, name, set_code, set_name, collector_number, rarity,
-       mana_cost, cmc, type_line, image_uri, raw, fetched_at
+       mana_cost, cmc, type_line, image_uri, raw, fetched_at, color_identity
 FROM cards
 WHERE id = ?
 `
@@ -34,13 +34,14 @@ func (q *Queries) GetCardByID(ctx context.Context, id string) (Card, error) {
 		&i.ImageUri,
 		&i.Raw,
 		&i.FetchedAt,
+		&i.ColorIdentity,
 	)
 	return i, err
 }
 
 const getCardBySetNumber = `-- name: GetCardBySetNumber :one
 SELECT id, oracle_id, name, set_code, set_name, collector_number, rarity,
-       mana_cost, cmc, type_line, image_uri, raw, fetched_at
+       mana_cost, cmc, type_line, image_uri, raw, fetched_at, color_identity
 FROM cards
 WHERE set_code = ?1 AND collector_number = ?2
 `
@@ -67,17 +68,18 @@ func (q *Queries) GetCardBySetNumber(ctx context.Context, arg GetCardBySetNumber
 		&i.ImageUri,
 		&i.Raw,
 		&i.FetchedAt,
+		&i.ColorIdentity,
 	)
 	return i, err
 }
 
 const upsertCard = `-- name: UpsertCard :one
 INSERT INTO cards (id, oracle_id, name, set_code, set_name, collector_number,
-                   rarity, mana_cost, cmc, type_line, image_uri, raw)
+                   rarity, mana_cost, cmc, type_line, image_uri, raw, color_identity)
 VALUES (?1, ?2, ?3, ?4,
         ?5, ?6, ?7,
         ?8, ?9, ?10,
-        ?11, ?12)
+        ?11, ?12, ?13)
 ON CONFLICT (id) DO UPDATE SET
     oracle_id        = excluded.oracle_id,
     name             = excluded.name,
@@ -90,9 +92,10 @@ ON CONFLICT (id) DO UPDATE SET
     type_line        = excluded.type_line,
     image_uri        = excluded.image_uri,
     raw              = excluded.raw,
+    color_identity   = excluded.color_identity,
     fetched_at       = datetime('now')
 RETURNING id, oracle_id, name, set_code, set_name, collector_number, rarity,
-          mana_cost, cmc, type_line, image_uri, raw, fetched_at
+          mana_cost, cmc, type_line, image_uri, raw, fetched_at, color_identity
 `
 
 type UpsertCardParams struct {
@@ -108,6 +111,7 @@ type UpsertCardParams struct {
 	TypeLine        sql.NullString  `json:"type_line"`
 	ImageUri        string          `json:"image_uri"`
 	Raw             string          `json:"raw"`
+	ColorIdentity   string          `json:"color_identity"`
 }
 
 func (q *Queries) UpsertCard(ctx context.Context, arg UpsertCardParams) (Card, error) {
@@ -124,6 +128,7 @@ func (q *Queries) UpsertCard(ctx context.Context, arg UpsertCardParams) (Card, e
 		arg.TypeLine,
 		arg.ImageUri,
 		arg.Raw,
+		arg.ColorIdentity,
 	)
 	var i Card
 	err := row.Scan(
@@ -140,6 +145,7 @@ func (q *Queries) UpsertCard(ctx context.Context, arg UpsertCardParams) (Card, e
 		&i.ImageUri,
 		&i.Raw,
 		&i.FetchedAt,
+		&i.ColorIdentity,
 	)
 	return i, err
 }

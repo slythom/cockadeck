@@ -22,6 +22,7 @@ type Card struct {
 	ImageUri        string          `json:"image_uri"`
 	Raw             string          `json:"raw"`
 	FetchedAt       string          `json:"fetched_at"`
+	ColorIdentity   string          `json:"color_identity"`
 }
 
 type Collection struct {

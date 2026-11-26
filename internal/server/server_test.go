@@ -83,6 +83,7 @@ const fixtureCardJSON = `{
 	"collector_number": "10",
 	"rarity": "common",
 	"mana_cost": "{1}{G}",
+	"color_identity": ["G"],
 	"cmc": 2.0,
 	"type_line": "Artifact — Equipment",
 	"image_uris": {"normal": "https://cards.scryfall.io/normal/front/1/0/x.jpg"}
@@ -138,7 +139,8 @@ func authedGet(t *testing.T, srv *httptest.Server, client *http.Client, cookie *
 
 func TestSearchFlow(t *testing.T) {
 	fixture, hits, lastQuery := scryfallFixture(t)
-	srv := httptest.NewServer(mustServer(newTestServer(t, fixture.URL)))
+	h, q := newTestServer(t, fixture.URL)
+	srv := httptest.NewServer(mustServer(h, q))
 	defer srv.Close()
 	client := noRedirectClient()
 	cookie := registerAndCookie(t, srv, client)
@@ -168,6 +170,17 @@ func TestSearchFlow(t *testing.T) {
 	}
 	if strings.Contains(body, "<!DOCTYPE") {
 		t.Fatal("htmx request rendered the full page, want a fragment")
+	}
+
+	// The cached card carries Scryfall's color_identity.
+	cached, err := q.GetCardBySetNumber(context.Background(), sqlcgen.GetCardBySetNumberParams{
+		SetCode: "otj", CollectorNumber: "10",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cached.ColorIdentity != "G" {
+		t.Fatalf("cached color_identity = %q, want %q", cached.ColorIdentity, "G")
 	}
 
 	// Cache hit → no second API call.
