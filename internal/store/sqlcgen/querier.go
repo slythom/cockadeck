@@ -24,6 +24,10 @@ type Querier interface {
 	// not mana cost) over the main and commander zones; sideboard cards do not
 	// contribute to the displayed identity.
 	ListDeckColors(ctx context.Context, userID int64) ([]ListDeckColorsRow, error)
+	// FR-DECK-07: which of the user's decks contain each printing (card id).
+	// deck_count counts distinct decks so a card in two zones of one deck
+	// still shows as a single membership.
+	ListDeckMemberships(ctx context.Context, userID int64) ([]ListDeckMembershipsRow, error)
 	ListDecks(ctx context.Context, userID int64) ([]ListDecksRow, error)
 	SetDeckCardQuantity(ctx context.Context, arg SetDeckCardQuantityParams) error
 	UpdateDeck(ctx context.Context, arg UpdateDeckParams) error

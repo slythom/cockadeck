@@ -283,6 +283,97 @@ func TestDeckColorsUseColorIdentity(t *testing.T) {
 	}
 }
 
+// FR-DECK-07: search results carry an "in <deck>"/"in N decks" badge for
+// printings already in the user's decks — and only the user's decks.
+func TestSearchMarksDeckMembership(t *testing.T) {
+	h, q := newTestServer(t, "http://127.0.0.1:1")
+	srv := httptest.NewServer(h)
+	defer srv.Close()
+	client := noRedirectClient()
+
+	// Two users.
+	cookieA := registerAndCookie(t, srv, client)
+	resp := postForm(t, srv, client, "/register", url.Values{
+		"email": {"other@example.com"}, "display_name": {"Other"}, "password": {"tencharacters!"},
+	})
+	var cookieB *http.Cookie
+	for _, c := range resp.Cookies() {
+		if c.Name == "cockadeck_token" {
+			cookieB = c
+		}
+	}
+	resp.Body.Close()
+
+	// Three cached printings, each with a unique set+number for lookup.
+	seed := func(id, name, num string) {
+		t.Helper()
+		_, err := q.UpsertCard(context.Background(), sqlcgen.UpsertCardParams{
+			ID: id, OracleID: "o-" + id, Name: name, SetCode: "tst",
+			SetName: "Test Set", CollectorNumber: num,
+			Rarity: "common", Cmc: sql.NullFloat64{Float64: 1, Valid: true},
+			ImageUri: "https://img/x.jpg", Raw: "{}",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	seed("card-a", "Alpha Card", "1")
+	seed("card-b", "Beta Card", "2")
+	seed("card-c", "Gamma Card", "3")
+
+	newDeck := func(cookie *http.Cookie, name string) string {
+		t.Helper()
+		resp := authedForm(t, srv, client, cookie, http.MethodPost, "/decks", url.Values{
+			"name": {name}, "format": {"40-card"},
+		})
+		defer resp.Body.Close()
+		return resp.Header.Get("Location")
+	}
+	addCard := func(cookie *http.Cookie, deckPath, cardID string) {
+		t.Helper()
+		resp := authedForm(t, srv, client, cookie, http.MethodPost, deckPath+"/cards", url.Values{
+			"card_id": {cardID}, "zone": {"main"}, "quantity": {"1"},
+		})
+		resp.Body.Close()
+	}
+
+	// User A: card-a in two decks, card-b in one.
+	deckA1 := newDeck(cookieA, "Alpha One")
+	deckA2 := newDeck(cookieA, "Alpha Two")
+	addCard(cookieA, deckA1, "card-a")
+	addCard(cookieA, deckA2, "card-a")
+	addCard(cookieA, deckA1, "card-b")
+	// User B: only card-c.
+	deckB := newDeck(cookieB, "Beta Deck")
+	addCard(cookieB, deckB, "card-c")
+
+	search := func(cookie *http.Cookie, num string) string {
+		t.Helper()
+		resp := authedGet(t, srv, client, cookie, "/search?set=tst&num="+num)
+		defer resp.Body.Close()
+		b, _ := io.ReadAll(resp.Body)
+		return string(b)
+	}
+
+	// A sees aggregate and single-deck badges, none for card-c (B's deck only).
+	if b := search(cookieA, "1"); !strings.Contains(b, "in 2 decks") {
+		t.Fatalf("card-a badge missing: %.300s", b)
+	}
+	if b := search(cookieA, "2"); !strings.Contains(b, "in Alpha One") {
+		t.Fatalf("card-b badge missing: %.300s", b)
+	}
+	if b := search(cookieA, "3"); strings.Contains(b, "badge-in-deck") {
+		t.Fatal("card-c shows a badge for user A, want none (it is only in B's deck)")
+	}
+	// B sees only its own membership.
+	if b := search(cookieB, "1"); strings.Contains(b, "badge-in-deck") {
+		t.Fatal("card-a shows a badge for user B, want none (A's decks don't count)")
+	}
+	if b := search(cookieB, "3"); !strings.Contains(b, "in Beta Deck") {
+		t.Fatalf("card-c badge missing for B: %.300s", b)
+	}
+}
+
 func TestDeckOwnership(t *testing.T) {
 	h, _ := newTestServer(t, "http://127.0.0.1:1")
 	srv := httptest.NewServer(h)

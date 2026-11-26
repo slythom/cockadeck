@@ -446,6 +446,11 @@ input:focus {
 	color: var(--muted);
 }
 
+.badge-in-deck {
+	border-color: var(--accent);
+	color: var(--accent);
+}
+
 .mana-cost {
 	display: inline-flex;
 	align-items: center;
