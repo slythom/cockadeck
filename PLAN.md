@@ -3,7 +3,8 @@
 | | |
 |---|---|
 | Status | Working plan, derived from `SPEC.md` + `TECHNICAL_SPEC.md` vs. current code |
-| Date | 2026-10-24 |
+| Date | 2026-11-26 |
+| Scope | **Deck management + `.cod` export is the current focus.** Collection (FR-COLL, FR-EXP-03) and sharing/tradable view (FR-CMP) are on hold — see Phase B/C. |
 
 ---
 
@@ -19,17 +20,18 @@ The codebase already covers TECHNICAL_SPEC §15 build steps 1–4 — **the MVP 
 | Search page + fragments | Done (set+num only) | `handlers_search.go`, `views/search.templ` |
 | Decks (FR-DECK-01–06) | Done | `handlers_decks.go`, `catalog.go` deck methods, zone-merge transaction, filters (set/rarity/cmc), `views/deck.templ` |
 | `.cod` export (FR-EXP-01/02/04) | Done | `internal/export/export.go` + golden test, `GET /decks/{id}/export.cod` |
+| UI redesign (Nov 2026) | Done | Open Sans + JetBrains Mono, grid background, SVG mana symbols, deck color identity, rarity colors, hover card preview, custom confirm dialog, mobile/responsive layout, HTMX v4, HTMX fragment updates on deck page, static asset fingerprinting |
 | Middleware chain | Done | recover → requestLog → secureHeaders → CSRF → RequireAuth |
-| Collection (FR-COLL-01–05) | **Not started** | schema exists; no `db/queries/collections.sql`, no service methods, handlers, or views |
-| CSV export (FR-EXP-03) | **Not started** | — |
-| Sharing + tradable view (FR-CMP-01–05) | **Not started** | — |
+| Collection (FR-COLL-01–05) | **On hold** | schema exists; no `db/queries/collections.sql`, no service methods, handlers, or views — deferred per current scope |
+| CSV export (FR-EXP-03) | **On hold** | deferred with collection work |
+| Sharing + tradable view (FR-CMP-01–05) | **On hold** | deferred with collection work |
 | Name search (FR-SEARCH-06) | Done | `SearchByName` in scryfall client + `CardsByName` cache-fill; name field is optional alongside set+num, live results on keyup |
 | Other printings (FR-SEARCH-07, FF) | **Not started** | — |
 | In-deck marker in results (FR-DECK-07, FF) | **Not started** | — |
 | Stats / import / OTel (Post-MVP) | Not started | deferred by design |
 | Deployment artifacts | Done (pending a host) | `deploy/` — Caddyfile, systemd unit, env example, backup script; `make deploy`; README rewritten |
 
-Note: `go` is not installed on this machine, so `make test` could not be verified — the last commits were presumably tested elsewhere.
+`go` is installed and `make test` passes.
 
 ---
 
@@ -38,12 +40,14 @@ Note: `go` is not installed on this machine, so `make test` could not be verifie
 ### Phase A — MVP gaps & fast-follows (small, high value)
 
 1. ~~**Name search (FR-SEARCH-06)**~~ — **done 2026-10-24**: `GET /cards/search` client, list fragment, keyup-triggered live results, set code usable as an optional narrowing constraint. Pulled into MVP by decision below.
-2. **In-deck marker (FR-DECK-07)** — join search results against the user's `deck_cards`; show a badge on printings already in a deck.
-3. **Other printings (FR-SEARCH-07)** — `unique:prints` query from a card result; list fragment linking back into set+num lookups (each printing lands in cache for free).
-4. **Commander deck-size soft indicator** (§7.4) — show "97/100" next to the commander-deck card total. Cheap.
-5. **Small fixes** — tighten `.gitignore` (`cockadeck` → `/cockadeck`; the bare pattern also matches the `cmd/cockadeck/` directory), flesh out README (run/dev instructions).
+2. **In-deck marker (FR-DECK-07)** — join search results against the user's `deck_cards`; show a badge on printings already in a deck. Tracked in [#7](https://github.com/slythom/cockadeck/issues/7).
+3. **Other printings (FR-SEARCH-07)** — `unique:prints` query from a card result; list fragment linking back into set+num lookups (each printing lands in cache for free). Tracked in [#13](https://github.com/slythom/cockadeck/issues/13).
+4. **Commander deck-size soft indicator** (§7.4) — show "97/100" next to the commander-deck card total. Cheap. Tracked in [#6](https://github.com/slythom/cockadeck/issues/6).
+5. ~~**Small fixes**~~ — `.gitignore` (`/cockadeck`) and README dev/deploy instructions are done.
 
-### Phase B — Increment 2: Collection (FR-COLL, FR-EXP-03)
+### Phase B — Increment 2: Collection (FR-COLL, FR-EXP-03) — **ON HOLD**
+
+> Deferred: collection tracking is not part of the current scope (deck management + `.cod` export only). Kept here for when it resumes.
 
 Build order inside the phase:
 
@@ -58,7 +62,9 @@ Build order inside the phase:
    - Cache note: re-crawling a set on every view is wasteful — check a "set already cached" heuristic (e.g. count of cached cards for the set > 0 + `fetched_at` freshness, or a `sets` table with `synced_at`). Decide TTL — see §3 Q3.
 6. **CSV export (FR-EXP-03)** — `GET /collection/export.csv`, `encoding/csv`, columns `name,set_code,set_name,collector_number,rarity,finish,quantity`, filename `collection-YYYY-MM-DD.csv`. Golden-file test next to `deck.cod`.
 
-### Phase C — Increment 2+: Sharing & tradable view (FR-CMP)
+### Phase C — Increment 2+: Sharing & tradable view (FR-CMP) — **ON HOLD**
+
+> Deferred along with Phase B: sharing depends on the collection feature.
 
 1. **Sharing toggle (FR-CMP-01)** — `POST /collection/sharing` flipping `collections.is_shared`; badge swap on the collection page.
 2. **Shared-collection browser (FR-CMP-02)** — `GET /collections` listing users (display_name) whose collection is shared. Nav entry.
@@ -78,7 +84,7 @@ Build order inside the phase:
 ### Phase E — Post-MVP (parked, order TBD)
 
 - Deck statistics (FR-STAT-01–03): mana curve chart (inline SVG bars are enough — no chart lib), avg MV, type distribution, land guidance.
-- Import (FR-IMP-01–02): plaintext list first; `.cod`/CSV later.
+- Import (FR-IMP-01–02): plaintext list first ([#5](https://github.com/slythom/cockadeck/issues/5)); `.cod`/CSV later.
 - OpenTelemetry → SigNoz.
 - Possible extras: `etched` finish, card-price display (data already in `raw` JSON), cache TTL/refresh.
 
@@ -110,4 +116,6 @@ Schema still supports N per user; no collection picker anywhere.
 
 ## 4. Suggested immediate next step
 
-Phase B items 1–2 (collection queries + service), then the collection page — or Phase A remainder (in-deck marker, other printings) if you want to finish polishing search first.
+Deck polish and fixes tracked in open issues: [#3](https://github.com/slythom/cockadeck/issues/3), [#4](https://github.com/slythom/cockadeck/issues/4), [#8](https://github.com/slythom/cockadeck/issues/8) (deck correctness bugs); [#9](https://github.com/slythom/cockadeck/issues/9), [#10](https://github.com/slythom/cockadeck/issues/10), [#11](https://github.com/slythom/cockadeck/issues/11), [#12](https://github.com/slythom/cockadeck/issues/12), [#14](https://github.com/slythom/cockadeck/issues/14), [#15](https://github.com/slythom/cockadeck/issues/15) (deck UX/robustness); then Phase A remainder — in-deck marker [#7](https://github.com/slythom/cockadeck/issues/7), commander size [#6](https://github.com/slythom/cockadeck/issues/6), other printings [#13](https://github.com/slythom/cockadeck/issues/13). [#16](https://github.com/slythom/cockadeck/issues/16) (CI) can land anytime.
+
+Collection (Phase B) and sharing (Phase C) stay on hold until the deck work is done.

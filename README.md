@@ -4,6 +4,9 @@ MTG deck builder and collection tracker. Server-rendered Go + HTMX + SQLite,
 card data via the Scryfall API. See `SPEC.md` (features), `TECHNICAL_SPEC.md`
 (architecture) and `PLAN.md` (roadmap).
 
+Current scope is deck management and `.cod` export; collection tracking and
+sharing are planned but on hold (see `PLAN.md`).
+
 ## Development
 
 Requires Go 1.26+ (templ and sqlc run via `go tool`).
