@@ -250,6 +250,48 @@ func (q *Queries) ListDeckColors(ctx context.Context, userID int64) ([]ListDeckC
 	return items, nil
 }
 
+const listDeckMemberships = `-- name: ListDeckMemberships :many
+SELECT dc.card_id,
+       COUNT(DISTINCT dc.deck_id) AS deck_count,
+       GROUP_CONCAT(DISTINCT d.name) AS deck_names
+FROM deck_cards dc
+JOIN decks d ON d.id = dc.deck_id
+WHERE d.user_id = ?
+GROUP BY dc.card_id
+`
+
+type ListDeckMembershipsRow struct {
+	CardID    string `json:"card_id"`
+	DeckCount int64  `json:"deck_count"`
+	DeckNames string `json:"deck_names"`
+}
+
+// FR-DECK-07: which of the user's decks contain each printing (card id).
+// deck_count counts distinct decks so a card in two zones of one deck
+// still shows as a single membership.
+func (q *Queries) ListDeckMemberships(ctx context.Context, userID int64) ([]ListDeckMembershipsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDeckMemberships, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListDeckMembershipsRow
+	for rows.Next() {
+		var i ListDeckMembershipsRow
+		if err := rows.Scan(&i.CardID, &i.DeckCount, &i.DeckNames); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listDecks = `-- name: ListDecks :many
 SELECT d.id, d.user_id, d.name, d.description, d.format, d.created_at, d.updated_at,
        CAST(COALESCE(SUM(dc.quantity), 0) AS INTEGER) AS card_count

@@ -60,6 +60,18 @@ WHERE deck_id = sqlc.arg(deck_id) AND card_id = sqlc.arg(card_id) AND zone = sql
 DELETE FROM deck_cards
 WHERE deck_id = sqlc.arg(deck_id) AND card_id = sqlc.arg(card_id) AND zone = sqlc.arg(zone);
 
+-- name: ListDeckMemberships :many
+-- FR-DECK-07: which of the user's decks contain each printing (card id).
+-- deck_count counts distinct decks so a card in two zones of one deck
+-- still shows as a single membership.
+SELECT dc.card_id,
+       COUNT(DISTINCT dc.deck_id) AS deck_count,
+       GROUP_CONCAT(DISTINCT d.name) AS deck_names
+FROM deck_cards dc
+JOIN decks d ON d.id = dc.deck_id
+WHERE d.user_id = ?
+GROUP BY dc.card_id;
+
 -- name: ListDeckColors :many
 -- Deck colors are the union of cards.color_identity (Scryfall color identity,
 -- not mana cost) over the main and commander zones; sideboard cards do not

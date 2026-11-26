@@ -108,6 +108,12 @@ func (s *Service) ListDecks(ctx context.Context, userID int64) ([]sqlcgen.ListDe
 	return s.q.ListDecks(ctx, userID)
 }
 
+// DeckMemberships reports which of the user's decks contain each card id
+// (FR-DECK-07 search badges).
+func (s *Service) DeckMemberships(ctx context.Context, userID int64) ([]sqlcgen.ListDeckMembershipsRow, error) {
+	return s.q.ListDeckMemberships(ctx, userID)
+}
+
 // GetDeck fetches a deck scoped to its owner; ErrNotFound if absent or foreign.
 func (s *Service) GetDeck(ctx context.Context, deckID, userID int64) (sqlcgen.Deck, error) {
 	d, err := s.q.GetDeck(ctx, sqlcgen.GetDeckParams{ID: deckID, UserID: userID})

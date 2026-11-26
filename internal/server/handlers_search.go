@@ -27,6 +27,7 @@ type searchOutcome struct {
 	cards  []sqlcgen.Card
 	total  int
 	decks  []sqlcgen.ListDecksRow
+	inDeck map[string]string
 	errMsg string
 }
 
@@ -36,14 +37,14 @@ func (s *Server) searchPage(w http.ResponseWriter, r *http.Request) {
 	set, num, name := searchParams(r)
 	if wantsFragment(r, "#results") {
 		res := s.runSearch(r, set, num, name)
-		views.SearchResults(res.card, res.cards, res.total, res.decks, res.errMsg).Render(r.Context(), w)
+		views.SearchResults(res.card, res.cards, res.total, res.decks, res.inDeck, res.errMsg).Render(r.Context(), w)
 		return
 	}
 	var res searchOutcome
 	if set != "" || num != "" || name != "" {
 		res = s.runSearch(r, set, num, name)
 	}
-	views.SearchPage(set, num, name, res.card, res.cards, res.total, res.decks, res.errMsg).Render(r.Context(), w)
+	views.SearchPage(set, num, name, res.card, res.cards, res.total, res.decks, res.inDeck, res.errMsg).Render(r.Context(), w)
 }
 
 func searchParams(r *http.Request) (set, num, name string) {
@@ -61,12 +62,34 @@ func (s *Server) runSearch(r *http.Request, set, num, name string) searchOutcome
 		out.card, out.errMsg = s.lookupCard(r.Context(), set, num)
 	}
 	if out.errMsg == "" && (out.card != nil || len(out.cards) > 0) {
-		out.decks, _ = s.cards.ListDecks(r.Context(), userID(r))
+		uid := userID(r)
+		out.decks, _ = s.cards.ListDecks(r.Context(), uid)
+		out.inDeck = s.deckBadges(r.Context(), uid)
 	}
 	if len(out.cards) > maxSearchResults {
 		out.cards = out.cards[:maxSearchResults]
 	}
 	return out
+}
+
+// deckBadges maps card id → badge label for FR-DECK-07: the deck name when
+// the printing is in exactly one deck, otherwise "N decks". One query per
+// search request regardless of result count.
+func (s *Server) deckBadges(ctx context.Context, userID int64) map[string]string {
+	rows, err := s.cards.DeckMemberships(ctx, userID)
+	if err != nil {
+		slog.Error("deck memberships", "err", err)
+		return nil
+	}
+	badges := make(map[string]string, len(rows))
+	for _, m := range rows {
+		if m.DeckCount == 1 {
+			badges[m.CardID] = "in " + m.DeckNames
+		} else {
+			badges[m.CardID] = fmt.Sprintf("in %d decks", m.DeckCount)
+		}
+	}
+	return badges
 }
 
 // lookupCard returns (card, "") on success or (nil, user-facing message) on failure.
